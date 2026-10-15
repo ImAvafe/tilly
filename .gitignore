@@ -1,0 +1,12 @@
+*.lock
+*.rbxl.lock
+
+build
+
+sourcemap.json
+
+/build
+
+.rodeo
+
+wally

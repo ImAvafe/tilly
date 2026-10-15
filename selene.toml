@@ -1,0 +1,4 @@
+std = "roblox"
+
+[lints]
+undefined_variable = { ignore_pattern = "types" }
