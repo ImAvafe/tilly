@@ -1,14 +1,21 @@
 local aspect = require("@self/namespaces/aspect")
 local breakpoint = require("@self/namespaces/breakpoint")
 local color = require("@self/namespaces/color")
+local container = require("@self/namespaces/container")
+local delay = require("@self/namespaces/delay")
+local duration = require("@self/namespaces/duration")
+local ease = require("@self/namespaces/ease")
 local font = require("@self/namespaces/font")
+local insetShadow = require("@self/namespaces/insetShadow")
 local fontWeight = require("@self/namespaces/fontWeight")
 local leading = require("@self/namespaces/leading")
 local radius = require("@self/namespaces/radius")
 local spacing = require("@self/namespaces/spacing")
-local stroke = require("@self/namespaces/stroke")
+local shadow = require("@self/namespaces/shadow")
+local border = require("@self/namespaces/border")
 local text = require("@self/namespaces/text")
-local transparency = require("@self/namespaces/transparency")
+local textShadow = require("@self/namespaces/textShadow")
+local opacity = require("@self/namespaces/opacity")
 
 type function MergedTokensets(sets: type)
 	local merged = {}
@@ -57,14 +64,21 @@ const PRIMITIVES = {
 	aspect = aspect,
 	breakpoint = breakpoint,
 	color = color,
+	container = container,
+	delay = delay,
+	duration = duration,
+	ease = ease,
 	font = font,
+	["inset-shadow"] = insetShadow,
 	["font-weight"] = fontWeight,
 	leading = leading,
 	radius = radius,
+	shadow = shadow,
 	spacing = spacing,
-	stroke = stroke,
+	border = border,
 	text = text,
-	transparency = transparency,
+	["text-shadow"] = textShadow,
+	opacity = opacity,
 }
 
 return table.freeze(withAll(PRIMITIVES))

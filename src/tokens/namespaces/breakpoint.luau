@@ -1,4 +1,4 @@
-const BREAKPOINT: { [string]: number } = {
+const BREAKPOINT = {
 	["breakpoint-sm"] = 640,
 	["breakpoint-md"] = 768,
 	["breakpoint-lg"] = 1024,

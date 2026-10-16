@@ -6,6 +6,13 @@ const function toUDim2(unit: number)
 	return UDim2.fromOffset(unit, unit)
 end
 
+const function toUDim2FromVector2(offset: Vector2 | number)
+	if typeof(offset) == "number" then
+		return toUDim2(offset)
+	end
+	return UDim2.fromOffset(offset.X, offset.Y)
+end
+
 const function toVector2(unit: number)
 	return Vector2.new(unit, unit)
 end
@@ -45,6 +52,11 @@ const CONVERSIONS: { [string]: (any) -> any } = {
 	Position = toUDim2,
 	MinSize = toVector2,
 	MaxSize = toVector2,
+
+	-- UIShadow (shadow, pixels)
+	BlurRadius = toUDim,
+	Offset = toUDim2FromVector2,
+	Spread = toUDim2,
 
 	Transparency = toTransparency,
 	FontFace = toFont,

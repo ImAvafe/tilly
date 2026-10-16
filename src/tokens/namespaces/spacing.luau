@@ -1,4 +1,4 @@
-const SPACING: { [string]: number } = {
+const SPACING = {
 	["spacing"] = 4,
 }
 

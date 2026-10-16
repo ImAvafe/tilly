@@ -53,7 +53,7 @@ const PATTERNS: { [string]: { Pattern } } = {
 	-- Border utils
 	["border"] = {
 		{
-			namespace = "stroke",
+			namespace = "border",
 			properties = { "Thickness" },
 			pseudoInstance = "UIStroke",
 		},

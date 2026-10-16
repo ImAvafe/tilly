@@ -1,7 +1,8 @@
 const RADIUS = {
+	["radius-none"] = 0,
 	["radius-xs"] = 2,
 	["radius-sm"] = 4,
-	["radius-base"] = 6,
+	["radius-md"] = 6,
 	["radius-lg"] = 8,
 	["radius-xl"] = 12,
 	["radius-2xl"] = 16,

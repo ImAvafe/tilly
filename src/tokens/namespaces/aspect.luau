@@ -1,6 +1,7 @@
-const ASPECT: { [string]: number } = {
+const ASPECT = {
+	["aspect"] = 1,
 	["aspect-video"] = 16 / 9,
-	["square"] = 1,
+	["aspect-square"] = 1,
 }
 
 return ASPECT

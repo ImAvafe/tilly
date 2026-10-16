@@ -1,4 +1,4 @@
-const TEXT: { [string]: number } = {
+const TEXT = {
 	["text-xs"] = 12,
 	["text-xs--line-height"] = 16 / 12,
 	["text-sm"] = 14,
