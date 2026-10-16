@@ -16,6 +16,26 @@ local border = require("@self/namespaces/border")
 local text = require("@self/namespaces/text")
 local textShadow = require("@self/namespaces/textShadow")
 local opacity = require("@self/namespaces/opacity")
+local fillDirection = require("@self/namespaces/fillDirection")
+local flexWrap = require("@self/namespaces/flexWrap")
+local flexMode = require("@self/namespaces/flexMode")
+local grow = require("@self/namespaces/grow")
+local shrink = require("@self/namespaces/shrink")
+local itemAlignment = require("@self/namespaces/itemAlignment")
+local hidden = require("@self/namespaces/hidden")
+local visible = require("@self/namespaces/visible")
+local overflow = require("@self/namespaces/overflow")
+local object = require("@self/namespaces/object")
+local pointerEvents = require("@self/namespaces/pointerEvents")
+local align = require("@self/namespaces/align")
+local textAlign = require("@self/namespaces/textAlign")
+local textWrapped = require("@self/namespaces/textWrapped")
+local textTruncate = require("@self/namespaces/textTruncate")
+local whitespace = require("@self/namespaces/whitespace")
+local order = require("@self/namespaces/order")
+local rotate = require("@self/namespaces/rotate")
+local scale = require("@self/namespaces/scale")
+local z = require("@self/namespaces/z")
 
 type function MergedTokensets(sets: type)
 	local merged = {}
@@ -79,6 +99,26 @@ const PRIMITIVES = {
 	text = text,
 	["text-shadow"] = textShadow,
 	opacity = opacity,
+	["fill-direction"] = fillDirection,
+	["flex-wrap"] = flexWrap,
+	["flex-mode"] = flexMode,
+	["grow"] = grow,
+	["shrink"] = shrink,
+	["item-alignment"] = itemAlignment,
+	["hidden"] = hidden,
+	["visible"] = visible,
+	["overflow"] = overflow,
+	["object"] = object,
+	["pointer-events"] = pointerEvents,
+	["align"] = align,
+	["text-align"] = textAlign,
+	["text-wrapped"] = textWrapped,
+	["text-truncate"] = textTruncate,
+	["whitespace"] = whitespace,
+	order = order,
+	rotate = rotate,
+	scale = scale,
+	z = z,
 }
 
 return table.freeze(withAll(PRIMITIVES))

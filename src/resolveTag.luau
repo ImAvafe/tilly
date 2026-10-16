@@ -23,8 +23,8 @@ const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: 
 	const baseMultiplierToken = (tokens.all :: tokens.Tokenset)[pattern.namespace]
 	const multiplier = parseMultiplier(tagValue)
 
-	if hardcodedToken or (baseMultiplierToken and multiplier) then
-		const endValue = if hardcodedToken then hardcodedToken else baseMultiplierToken * multiplier
+	if hardcodedToken ~= nil or (baseMultiplierToken and multiplier) then
+		const endValue = if hardcodedToken ~= nil then hardcodedToken else baseMultiplierToken * multiplier
 		const properties = {}
 
 		for _, property in pattern.properties do
@@ -53,6 +53,17 @@ const function resolveTag(tag: string): Rule?
 		end
 	end
 
+	-- Direct resolution for standalone utilities
+	if #tagParts == 1 then
+		for _, pattern in patterns[tag] or {} do
+			const rule = resolvePattern(tag, pattern, "default")
+			if rule then
+				return rule
+			end
+		end
+	end
+
+	-- Walk the tag's parts until a match is found
 	for i = #tagParts - 1, 1, -1 do
 		const prefix = table.concat(tagParts, "-", 1, i)
 		const value = table.concat(tagParts, "-", i + 1)
@@ -68,6 +79,7 @@ const function resolveTag(tag: string): Rule?
 		end
 	end
 
+	-- aw man :<
 	warn(`\"{tag}\"`, "utility tag is not valid.")
 
 	if string.find(tag, ".") then
