@@ -12,7 +12,6 @@ const PATTERNS: { [string]: { Pattern } } = {
 			namespace = "color",
 			properties = { "BackgroundColor3" },
 		},
-		-- bg-cover / bg-contain reuse the object-fit tokens
 		{
 			namespace = "object",
 			properties = { "ScaleType" },
