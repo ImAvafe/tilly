@@ -88,7 +88,7 @@ const function resolveTag(tag: string): Rule?
 	-- aw man :<
 	warn(`\"{tag}\"`, "utility tag is not valid.")
 
-	if string.find(tag, ".") then
+	if string.find(tag, ".", 1, true) then
 		warn("Using decimals within utility tags conflicts with StyleRule's selector syntax. Prefer underscores.")
 	end
 
