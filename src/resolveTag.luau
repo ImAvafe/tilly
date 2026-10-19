@@ -2,9 +2,16 @@ local convertValue = require(script.Parent.convertValue)
 local tokens = require(script.Parent.tokens)
 local patterns = require(script.Parent.patterns)
 
+const VARIANT_GUI_STATES = {
+	hover = Enum.GuiState.Hover.Name,
+	active = Enum.GuiState.Press.Name,
+	disabled = Enum.GuiState.NonInteractable.Name,
+}
+
 export type Rule = {
 	selector: string,
 	properties: { [string]: any },
+	priority: number?,
 	propertyComponent: string?,
 }
 
@@ -12,16 +19,28 @@ const function parseMultiplier(multiplier: string): number?
 	if multiplier == "px" then
 		return 1
 	end
-	if string.match(multiplier, "^%d+$") or string.match(multiplier, "^%d+_%d+$") then
-		return tonumber((string.gsub(multiplier, "_", ".")))
+	if string.match(multiplier, "^%d+$") or string.match(multiplier, "^%d+%.%d+$") then
+		return tonumber(multiplier)
 	end
 	return nil
 end
 
-const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: string): Rule?
+const function variantsToGuiStateSuffix(variants: { string }): string
+	local guiStatesSuffix = ""
+	for _, variant in variants do
+		const guiState = VARIANT_GUI_STATES[variant]
+		if guiState ~= nil then
+			guiStatesSuffix = `{guiStatesSuffix}:{guiState}`
+		end
+	end
+	return guiStatesSuffix
+end
+
+const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: string, variants: { string }): Rule?
 	const hardcodedToken = (tokens.all :: tokens.Tokenset)[`{pattern.namespace}-{tagValue}`]
 	const baseMultiplierToken = (tokens.all :: tokens.Tokenset)[pattern.namespace]
 	const multiplier = parseMultiplier(tagValue)
+	const guiStateSuffix = variantsToGuiStateSuffix(variants)
 
 	if hardcodedToken ~= nil or (baseMultiplierToken and multiplier) then
 		const endValue = if hardcodedToken ~= nil then hardcodedToken else baseMultiplierToken * multiplier
@@ -40,9 +59,13 @@ const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: 
 		end
 
 		if next(properties) ~= nil then
+			const sanitizedTag = string.gsub(tag, "[:%.]", "_")
 			return {
-				selector = if pattern.pseudoInstance then `.{tag}::{pattern.pseudoInstance}` else `.{tag}`,
+				selector = if pattern.pseudoInstance
+					then `.{sanitizedTag}::{pattern.pseudoInstance}{guiStateSuffix}`
+					else `.{sanitizedTag}{guiStateSuffix}`,
 				properties = properties,
+				priority = if #variants > 0 then 1 else 0,
 			}
 		end
 	end
@@ -51,18 +74,20 @@ const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: 
 end
 
 const function resolveTag(tag: string): Rule?
-	const tagParts = string.split(tag, "-")
+	const variants = string.split(tag, ":")
+	const utilityParts = string.split(variants[#variants], "-")
+	table.remove(variants, #variants)
 
-	for _, part in tagParts do
+	for _, part in utilityParts do
 		if part == "" then
 			return nil
 		end
 	end
 
 	-- Direct resolution for standalone utilities
-	if #tagParts == 1 then
+	if #utilityParts == 1 then
 		for _, pattern in patterns[tag] or {} do
-			const rule = resolvePattern(tag, pattern, "default")
+			const rule = resolvePattern(tag, pattern, "default", variants)
 			if rule then
 				return rule
 			end
@@ -70,14 +95,14 @@ const function resolveTag(tag: string): Rule?
 	end
 
 	-- Walk the tag's parts until a match is found
-	for i = #tagParts - 1, 1, -1 do
-		const prefix = table.concat(tagParts, "-", 1, i)
-		const value = table.concat(tagParts, "-", i + 1)
+	for i = #utilityParts - 1, 1, -1 do
+		const prefix = table.concat(utilityParts, "-", 1, i)
+		const value = table.concat(utilityParts, "-", i + 1)
 		const utilityPatterns = patterns[prefix]
 
 		if utilityPatterns then
 			for _, pattern in utilityPatterns do
-				const rule = resolvePattern(tag, pattern, value)
+				const rule = resolvePattern(tag, pattern, value, variants)
 				if rule then
 					return rule
 				end
@@ -87,10 +112,6 @@ const function resolveTag(tag: string): Rule?
 
 	-- aw man :<
 	warn(`\"{tag}\"`, "utility tag is not valid.")
-
-	if string.find(tag, ".", 1, true) then
-		warn("Using decimals within utility tags conflicts with StyleRule's selector syntax. Prefer underscores.")
-	end
 
 	return nil
 end

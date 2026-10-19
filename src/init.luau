@@ -18,7 +18,8 @@ const function tilly(styleSheet: StyleSheet)
 		const tagsArray = string.split(tags, " ")
 
 		for _, tag in tagsArray do
-			instance:AddTag(tag)
+			const sanitizedTag = string.gsub(tag, "[:%.]", "_")
+			instance:AddTag(sanitizedTag)
 
 			if resolvedStyleRules[tag] == nil then
 				const freshTagRule = resolveTag(tag)
@@ -27,6 +28,7 @@ const function tilly(styleSheet: StyleSheet)
 					const styleRule = Instance.new("StyleRule")
 					styleRule.Selector = freshTagRule.selector
 					styleRule:SetProperties(freshTagRule.properties)
+					styleRule.Priority = freshTagRule.priority or 0
 					styleRule.Name = freshTagRule.selector
 					styleRule.Parent = styleSheet
 					resolvedStyleRules[tag] = styleRule
