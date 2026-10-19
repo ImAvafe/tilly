@@ -1,6 +1,7 @@
 export type Pattern = {
 	namespace: string,
 	properties: { string },
+	manualProperties: { [string]: any }?,
 	pseudoInstance: string?,
 	propertyComponent: string?,
 }
@@ -11,6 +12,9 @@ const PATTERNS: { [string]: { Pattern } } = {
 		{
 			namespace = "color",
 			properties = { "BackgroundColor3" },
+			manualProperties = {
+				BackgroundTransparency = 0,
+			},
 		},
 		{
 			namespace = "object",

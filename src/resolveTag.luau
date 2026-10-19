@@ -33,6 +33,12 @@ const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: 
 			end
 		end
 
+		if pattern.manualProperties ~= nil then
+			for property, value in pattern.manualProperties do
+				properties[property] = value
+			end
+		end
+
 		if next(properties) ~= nil then
 			return {
 				selector = if pattern.pseudoInstance then `.{tag}::{pattern.pseudoInstance}` else `.{tag}`,
