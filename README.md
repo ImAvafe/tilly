@@ -4,6 +4,9 @@ Like Tailwind, Tilly allows you to style your Roblox UI using utility tags and m
 
 Unlike Tailwind, Tilly is not a build tool and instead operates entirely at runtime. To save on performance, it renders and caches only the tags applied.
 
+>[!IMPORTANT]
+>Tilly is not stable or mature enough for use in production! Implementation will change frequently as it approaches maturity.
+
 ## Installation
 
 There are currently no releases available. Paste Tilly's `src` folder into your project to install it!
