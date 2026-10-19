@@ -1,47 +1,53 @@
-it's tailwind but for roblox
-
 # Tilly
 
-Tilly generates `StyleRule`s targeting `CollectionService` tags for utility class styling. It's like TailwindCSS but for Roblox.
+Like Tailwind, Tilly allows you to style your Roblox UI using utility tags and minimize your markup!
 
-## Tokens
+Unlike Tailwind, Tilly is not a build tool and instead operates entirely at runtime. To save on performance, it renders and caches only the tags applied.
 
-Tokens are stored and organized by namespace _(type of token)_. This library holds a predefined set of primitives by default.
+## Installation
 
-Developers can override and define custom tokens at runtime, triggering a rerender of the utility tags and their underlying `StyleRule`s.
+There are currently no releases available. Paste Tilly's `src` folder into your project to install it!
 
-The following namespaces could be achieved within the constraints of Roblox's UI engine: `color`, `font`, `text`, `font-weight`, `leading`, `spacing`, `radius`, `aspect`, `zoom`, `breakpoint`, `ease`, `shadow`, `drop-shadow`
+## Usage
 
-## Utilities
+```luau
+const tilly = require(path.to.tilly)
 
-Utility tags are comprised of a **purpose** and a **token input**. For example, `bg-red-500` looks within the `color` namespace for `color-red-500`.
+const screenGui = Instance.new("ScreenGui")
+const styleSheet = Instance.new("StyleSheet")
+const styleLink = Instance.new"StyleLink")
+const button = Instance.new("TextButton")
 
-The syntax is near-identical to Tailwind for convenience. Unlike Tailwind, each utility tag will correspond to only one property type and namespace for convenient auto-generation.
+styleSheet.Parent = styleLink
+styleLink.StyleSheet = styleSheet
+styleLink.Parent = screenGui
+button.Parent = screenGui
 
-## Utility modifiers
+const tag, destroy = tilly(styleSheet)
 
-Utility tags will support modifiers targeting `GuiState` and `StyleQuery` states to achieve parity with [StyleRule.Selector](https://create.roblox.com/docs/reference/engine/classes/StyleRule#Selector).
+tag(button, "text-white bg-indigo-500 hover:bg-indigo-400 px-4 py-3 rounded-lg border border-indigo-400")
+```
 
-## Lazy rendering
+### With a reactivity library
 
-Utility tags will be applied to `GuiObject`s via a `tag(utilities: string)` function. `tag()` will track its input to lazily render only tags that are applied. Once a utility tag is rendered, it remains so regardless of application.
+If you're using a reactivity library to construct your UI, it's recommended to wrap Tilly's `tag()` function for your framework of choice. Below is an example of how that might look in Vide:
 
-`tag()` will be framework-agnostic, although users can wrap it to suit their framework of choice.
+```luau
+const function videTag(tags: string)
+	return action(function(instance)
+		tag(instance, tags)
+	end)
+end
 
-## Prior work
+create "TextButton" {
+	videTag("text-white bg-indigo-500 hover:bg-indigo-400 px-4 py-3 rounded-lg border border-indigo-400")
+}
+```
 
-### Roblox
+## Tailwind parity
 
-Roblox generates utility classes internally as part of its Foundation design system. This is already working in production.
+Tilly's syntax is identical to Tailwind for the utilities currently supported. You can find a complete reference of Tailwind's utilities here: https://tailwindcss.com/docs/
 
-Roblox's workflow relies on maintaining a static set of tokens using Amazon Token Studio, then using them to generate tokens in Luau. I don't want to do that.
+Some Tailwind features and utilities are currently blocked by limitations in Tilly's resolver. Among these are style queries, transitions, and composite properties. You can still define these in your markup without Tilly.
 
-Otherwise, their approach is pretty similar to this library. They also lazily render utility tags based on usage.
-
-- [Foundation StyleTags.md](https://github.com/MaximumADHD/Roblox-Client-Tracker/blob/roblox/LuaPackages/Packages/_Index/Foundation/Foundation/StyleSheet/StyleTags.md)
-
-### Tailwind
-
-Tailwind is the classic utility classes tool, performing all its generation at build-time. It's a great reference for utility coverage but its approach is ill-suited to Roblox development.
-
-- [Namespaces](https://tailwindcss.com/docs/theme#theme-variable-namespaces)
+There are bound to be errors in the existing utility definitions. If you spot one, submit a PR! Porting tools to other engines is a process of maintenance.
