@@ -1,5 +1,4 @@
-local convertValue = require(script.Parent.convertValue)
-local tokens = require(script.Parent.tokens)
+local convertValue = require(script.Parent.util.convertValue)
 local patterns = require(script.Parent.patterns)
 
 const VARIANT_GUI_STATES = {
@@ -14,6 +13,7 @@ export type Rule = {
 	priority: number?,
 	propertyComponent: string?,
 }
+export type Tokens = { [string]: any }
 
 const function parseMultiplier(multiplier: string): number?
 	if multiplier == "px" then
@@ -36,9 +36,15 @@ const function variantsToGuiStateSuffix(variants: { string }): string
 	return guiStatesSuffix
 end
 
-const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: string, variants: { string }): Rule?
-	const hardcodedToken = (tokens.all :: tokens.Tokenset)[`{pattern.namespace}-{tagValue}`]
-	const baseMultiplierToken = (tokens.all :: tokens.Tokenset)[pattern.namespace]
+const function resolvePattern(
+	tag: string,
+	pattern: patterns.Pattern,
+	tagValue: string,
+	variants: { string },
+	mergedTokens: Tokens
+): Rule?
+	const hardcodedToken = (mergedTokens :: Tokens)[`{pattern.namespace}-{tagValue}`]
+	const baseMultiplierToken = (mergedTokens :: Tokens)[pattern.namespace]
 	const multiplier = parseMultiplier(tagValue)
 	const guiStateSuffix = variantsToGuiStateSuffix(variants)
 
@@ -73,7 +79,7 @@ const function resolvePattern(tag: string, pattern: patterns.Pattern, tagValue: 
 	return nil
 end
 
-const function resolveTag(tag: string): Rule?
+const function resolveTag(tag: string, tokens: Tokens): Rule?
 	const variants = string.split(tag, ":")
 	const utilityParts = string.split(variants[#variants], "-")
 	table.remove(variants, #variants)
@@ -87,7 +93,7 @@ const function resolveTag(tag: string): Rule?
 	-- Direct resolution for standalone utilities
 	if #utilityParts == 1 then
 		for _, pattern in patterns[tag] or {} do
-			const rule = resolvePattern(tag, pattern, "default", variants)
+			const rule = resolvePattern(tag, pattern, "default", variants, tokens)
 			if rule then
 				return rule
 			end
@@ -102,7 +108,7 @@ const function resolveTag(tag: string): Rule?
 
 		if utilityPatterns then
 			for _, pattern in utilityPatterns do
-				const rule = resolvePattern(tag, pattern, value, variants)
+				const rule = resolvePattern(tag, pattern, value, variants, tokens)
 				if rule then
 					return rule
 				end

@@ -25,35 +25,30 @@ const function toFont(family: string | EnumItem)
 	if typeof(family) == "string" then
 		return Font.new(family)
 	end
-	return family
+	return family :: any
 end
 
 const CONVERSIONS: { [string]: (any) -> any } = {
-	-- UIPadding (spacing, pixels)
+	Padding = toUDim,
 	PaddingTop = toUDim,
 	PaddingRight = toUDim,
 	PaddingBottom = toUDim,
 	PaddingLeft = toUDim,
 
-	-- UIListLayout (spacing, pixels)
-	Padding = toUDim,
 	HorizontalPadding = toUDim,
 	VerticalPadding = toUDim,
 
-	-- UICorner (radius)
 	CornerRadius = toUDim,
 	TopLeftRadius = toUDim,
 	TopRightRadius = toUDim,
 	BottomRightRadius = toUDim,
 	BottomLeftRadius = toUDim,
 
-	-- Sizing and positioning (spacing, pixels)
 	Size = toUDim2,
 	Position = toUDim2,
 	MinSize = toVector2,
 	MaxSize = toVector2,
 
-	-- UIShadow (shadow, pixels)
 	BlurRadius = toUDim,
 	Offset = toUDim2FromVector2,
 	Spread = toUDim2,

@@ -6,7 +6,6 @@
 [tools]
 lune = "lune-org/lune@0.10.2"
 rojo = "rojo-rbx/rojo@7.7.1"
-selene = "Kampfkarren/selene@0.32.0"
 stylua = "JohnnyMorganz/StyLua@2.5.2"
 rodeo = "rodeo-rbx/rodeo@1.3.0"
 wally = "UpliftGames/wally@0.3.2"

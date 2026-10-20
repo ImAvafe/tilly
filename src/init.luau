@@ -1,7 +1,10 @@
+local mergeTokensets = require("@self/util/mergeTokensets")
+local defaultTokens = require("@self/tokens")
 local propertyDefaults = require(script.propertyDefaults)
 local resolveTag = require(script.resolveTag)
 
-const function tilly(styleSheet: StyleSheet)
+const function tilly(styleSheet: StyleSheet, tokens: { [string]: any }?)
+	const mergedTokens = mergeTokensets({ defaultTokens, tokens or {} })
 	const resolvedStyleRules = {} :: { [string]: StyleRule | false }
 
 	-- Load instance property defaults
@@ -14,7 +17,7 @@ const function tilly(styleSheet: StyleSheet)
 		styleRule.Name = className
 	end
 
-	const function tag(instance: Instance, tags: string)
+	const function addTags(instance: Instance, tags: string)
 		const tagsArray = string.split(tags, " ")
 
 		for _, tag in tagsArray do
@@ -22,7 +25,7 @@ const function tilly(styleSheet: StyleSheet)
 			instance:AddTag(sanitizedTag)
 
 			if resolvedStyleRules[tag] == nil then
-				const freshTagRule = resolveTag(tag)
+				const freshTagRule = resolveTag(tag, mergedTokens :: { [string]: any })
 
 				if freshTagRule ~= nil then
 					const styleRule = Instance.new("StyleRule")
@@ -48,7 +51,7 @@ const function tilly(styleSheet: StyleSheet)
 		end
 	end
 
-	return tag, destroy
+	return addTags, destroy
 end
 
 return tilly

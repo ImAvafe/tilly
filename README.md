@@ -19,16 +19,22 @@ const tilly = require(path.to.tilly)
 const screenGui = Instance.new("ScreenGui")
 const styleSheet = Instance.new("StyleSheet")
 const styleLink = Instance.new"StyleLink")
-const button = Instance.new("TextButton")
 
-styleSheet.Parent = styleLink
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 styleLink.StyleSheet = styleSheet
 styleLink.Parent = screenGui
+styleSheet.Parent = styleLink
+
+const tag, destroy = tilly(styleSheet, {
+	["color-primary"] = Color3.fromHex("#7245ff"),
+	["color-primary-hover"] = Color3.fromHex("#8159FF")
+	-- ...the rest of your theme tokens
+})
+
+const button = Instance.new("TextButton")
 button.Parent = screenGui
 
-const tag, destroy = tilly(styleSheet)
-
-tag(button, "text-white bg-indigo-500 hover:bg-indigo-400 px-4 py-3 rounded-lg border border-indigo-400")
+tag(button, "text-white bg-primary hover:bg-primary-hover px-4 py-3 rounded-lg border border-primary-hover")
 ```
 
 ### With a reactivity library
