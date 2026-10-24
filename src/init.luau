@@ -5,32 +5,47 @@ local resolveTag = require("@self/resolveTag")
 
 type Placeholder = "我们今" 
 
-type function AutocompleteTags(tokensType: type, tagsType: type)
-	const function assertStringSingleton(target: type, errorMessage: string)
-		const value = if target.tag == "singleton" then target:value() else error(errorMessage)
-		return type(value) == "string" and value or error(errorMessage)
+type function AssertStringSingleton(target: type, errorMessage: string)
+	const value = if target.tag == "singleton" then target:value() else error(errorMessage)
+	return type(value) == "string" and value or error(errorMessage)
+end
+
+type function WithTokens(defaultTokens: type, tokensType: type)
+	const tokens = tokensType.tag == "union" and tokensType:components()[1] or tokensType
+	if tokens.tag ~= "table" then
+		return defaultTokens
 	end
 
-	const tags = assertStringSingleton(tagsType, "expected tags to be a string singleton")
+	const result = types.copy(defaultTokens)
+	for key, value in tokens:properties() do
+		result:setreadproperty(key, value.read)
+	end
+
+	return result
+end
+
+type function AutocompleteTags(tokensType: type, tagsType: type)
+	const tags = AssertStringSingleton(tagsType, "expected tags to be a string singleton")
 
 	const fragment = string.match(tags, "(%S+)$")
 	const needle = fragment or ""
 
 	local components = {}
 	for key in tokensType:properties() do
-		const token = assertStringSingleton(key, "expected token keys to be string singletons")
+		const token = AssertStringSingleton(key, "expected token keys to be string singletons")
 		if token ~= needle and string.sub(token, 1, #needle) == needle then
 			table.insert(components, types.singleton(token))
 		end
 	end
 
-	return if #components == 1 then types.never else types.unionof(table.unpack(components))
+	const numComponents = #components
+	return if numComponents == 0 then types.never elseif numComponents == 1 then components[1] else types.unionof(table.unpack(components))
 end
 
 type AddTag<Tokens> = <Tags>(instance: Instance, tags: Tags | Placeholder | AutocompleteTags<Tokens, Tags>) -> ()
 
-const function tilly<T>(styleSheet: StyleSheet, tokens: (T | { [string]: any })?)
-	const mergedTokens = mergeTokensets({ defaultTokens, tokens or {} })
+const function tilly<Tokens>(styleSheet: StyleSheet, tokens: Tokens?)
+	const mergedTokens: mergeTokensets.Tokenset = (mergeTokensets :: any)({ defaultTokens, tokens or {} })
 	const resolvedStyleRules = {} :: { [string]: StyleRule | false }
 
 	-- Load instance property defaults
@@ -77,12 +92,14 @@ const function tilly<T>(styleSheet: StyleSheet, tokens: (T | { [string]: any })?
 		end
 	end
 
-	return addTags :: AddTag<typeof(defaultTokens)>, destroy
+	return addTags :: AddTag<WithTokens<typeof(defaultTokens), typeof(tokens)>>, destroy
 end
 
-const tags = tilly(Instance.new("StyleSheet"))
+const tags = tilly(Instance.new("StyleSheet"), {
+	["some-bullshit"] = 100
+})
 
-tags(workspace, "color-amber-100 text-2xl scale-none aspect-video radius-4xl pointer-events-auto")
+tags(workspace, "p-20 color-amber-100")
 
 
 
