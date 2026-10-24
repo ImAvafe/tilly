@@ -1,5 +1,5 @@
-local convertValue = require(script.Parent.util.convertValue)
-local patterns = require(script.Parent.patterns)
+local convertValue = require("./util/convertValue")
+local patterns = require("./patterns")
 
 const VARIANT_GUI_STATES = {
 	hover = Enum.GuiState.Hover.Name,
