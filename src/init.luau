@@ -3,7 +3,7 @@ local defaultTokens = require("@self/tokens")
 local propertyDefaults = require("@self/propertyDefaults")
 local resolveTag = require("@self/resolveTag")
 
-type Placeholder = "我们今"
+type Placeholder = ""
 
 type function AssertStringSingleton(target: type, errorMessage: string)
 	const value = if target.tag == "singleton" then target:value() else error(errorMessage)
@@ -69,7 +69,8 @@ type function AutocompleteTags(tokensType: type, tagsType: type)
 
 	const numComponents = #components
 
-	return if numComponents == 0 then types.never
+	return if numComponents == 0
+		then types.never
 		elseif numComponents == 1 then components[1]
 		else types.unionof(table.unpack(components))
 end

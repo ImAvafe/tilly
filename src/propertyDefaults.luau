@@ -13,7 +13,7 @@ const PROPERTY_DEFAULTS: { [string]: { [string]: any } } = {
 	UIStroke = {
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		BorderStrokePosition = Enum.BorderStrokePosition.Inner,
-	}, 
+	},
 	GuiButton = {
 		AutoButtonColor = false,
 	},
