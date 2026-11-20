@@ -12,3 +12,7 @@ sourcemap.json
 wally
 
 .bench
+
+node_modules
+
+docs/.vitepress/cache

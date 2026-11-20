@@ -21,7 +21,7 @@ local sanitizeTag = require("./util/sanitizeTag")
 local withComponents = require("./util/withComponents")
 
 export type Options = {
-	tokens: { [string]: any }?, -- Merged over the default tokens, like `styling/tag` does
+	tokens: { [string]: any }?, -- Merged over the default tokens, like `style/tag` does
 	parent: Instance?, -- Where the test ScreenGui goes. Defaults to PlayerGui, or StarterGui in edit mode
 	keep: boolean?, -- Keep the test ScreenGui for inspection
 	maxPrinted: number?, -- How many failures to print
@@ -868,7 +868,7 @@ const function runTests(options: Options?): Report
 		end
 	end
 
-	-- Removing tags, like `styling/tag` does when reactive tags change
+	-- Removing tags, like `style/tag` does when reactive tags change
 	do
 		const case = "cleanup"
 		const frame = newFrame(case)
