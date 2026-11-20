@@ -3,9 +3,7 @@ export type Pattern = {
 	properties: { string },
 	manualProperties: { [string]: any }?,
 	pseudoInstance: string?,
-	propertyComponent: string?, -- Sets only this component of the property, like X of a Size
-	-- Properties set from `{namespace}-{value}--{subtoken}-1` tokens, or components from `{namespace}-{value}--{subtoken}`
-	-- tokens when `propertyComponent` is set
+	propertyComponent: string?,
 	subtokens: { [string]: string }?,
 }
 
@@ -328,6 +326,11 @@ const PATTERNS: { [string]: { Pattern } } = {
 			properties = { "Size" },
 			propertyComponent = "X",
 		},
+		{
+			namespace = "fraction",
+			properties = { "Size" },
+			propertyComponent = "X",
+		},
 	},
 	["h"] = {
 		{
@@ -335,10 +338,19 @@ const PATTERNS: { [string]: { Pattern } } = {
 			properties = { "Size" },
 			propertyComponent = "Y",
 		},
+		{
+			namespace = "fraction",
+			properties = { "Size" },
+			propertyComponent = "Y",
+		},
 	},
 	["size"] = {
 		{
 			namespace = "spacing",
+			properties = { "Size" },
+		},
+		{
+			namespace = "fraction",
 			properties = { "Size" },
 		},
 	},

@@ -32,8 +32,6 @@ const PROPERTY_DEFAULTS: { [string]: { [string]: any } } = {
 		TextWrapped = tokens["text-wrapped-wrap"],
 		TextXAlignment = tokens["text-align-left"],
 		TextYAlignment = Enum.TextYAlignment.Top,
-		-- TODO: have line height set alongside text size patterns? depends on roblox's quirky text rendering
-		-- LineHeight = tokens["text-base--line-height"],
 	},
 	TextButton = {
 		FontFace = Font.new(tokens["font-sans"], tokens["font-weight-normal"]),
@@ -41,7 +39,6 @@ const PROPERTY_DEFAULTS: { [string]: { [string]: any } } = {
 		TextWrapped = tokens["text-wrapped-wrap"],
 		TextXAlignment = tokens["text-align-left"],
 		TextYAlignment = Enum.TextYAlignment.Top,
-		-- LineHeight = tokens["text-base--line-height"],
 	},
 	TextBox = {
 		FontFace = Font.new(tokens["font-sans"], tokens["font-weight-normal"]),
@@ -49,7 +46,6 @@ const PROPERTY_DEFAULTS: { [string]: { [string]: any } } = {
 		TextWrapped = tokens["text-wrapped-wrap"],
 		TextXAlignment = tokens["text-align-left"],
 		TextYAlignment = Enum.TextYAlignment.Top,
-		-- LineHeight = tokens["text-base--line-height"],
 		ClearTextOnFocus = false,
 	},
 	ImageLabel = {

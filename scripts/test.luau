@@ -712,6 +712,22 @@ const function runTests(options: Options?): Report
 			styled = { Size = size(10, 10) },
 		},
 		{
+			calls = { "w-full h-8" },
+			styled = { Size = UDim2.new(1, 0, 0, spacing * 8) },
+		},
+		{
+			calls = { "w-full h-full" },
+			styled = { Size = UDim2.fromScale(1, 1) },
+		},
+		{
+			calls = { "size-full" },
+			styled = { Size = UDim2.fromScale(1, 1) },
+		},
+		{
+			calls = { "w-4", "bg-red-500", "h-8" },
+			styled = { Size = size(4, 8) },
+		},
+		{
 			calls = { "inset-x-2 inset-y-3" },
 			styled = { Position = size(2, 3) },
 		},

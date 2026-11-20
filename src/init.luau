@@ -90,9 +90,7 @@ export type DefaultTokens = typeof(defaultTokens)
 
 const function tilly<Tokens>(styleSheet: StyleSheet, tokens: Tokens?)
 	const mergedTokens: mergeTokensets.Tokenset = (mergeTokensets :: any)({ defaultTokens, tokens or {} })
-	-- Keyed by tag, or by selector for compound rules
 	const resolvedStyleRules = {} :: { [string]: StyleRule | false }
-	-- Rules that set one component of a composite property, keyed by sanitized tag
 	const componentRules = {} :: { [string]: resolveTag.Rule }
 
 	const function createStyleRule(selector: string, properties: { [string]: any }, priority: number): StyleRule
@@ -169,6 +167,7 @@ const function tilly<Tokens>(styleSheet: StyleSheet, tokens: Tokens?)
 
 	const function addTags(instance: Instance, tags: string): () -> ()
 		const tagsArray = string.split(tags, " ")
+		local hasComponent = false
 
 		for _, tag in tagsArray do
 			const sanitizedTag = sanitizeTag(tag)
@@ -186,14 +185,22 @@ const function tilly<Tokens>(styleSheet: StyleSheet, tokens: Tokens?)
 					componentRules[sanitizedTag] = rule
 				end
 			end
+
+			if componentRules[sanitizedTag] ~= nil then
+				hasComponent = true
+			end
 		end
-		addCompositeRules(instance)
+		if hasComponent then
+			addCompositeRules(instance)
+		end
 
 		return function()
 			for _, tag in tagsArray do
 				instance:RemoveTag(sanitizeTag(tag))
 			end
-			addCompositeRules(instance)
+			if hasComponent then
+				addCompositeRules(instance)
+			end
 		end
 	end
 

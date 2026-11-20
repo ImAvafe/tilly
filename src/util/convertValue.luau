@@ -2,7 +2,10 @@ const function toUDim(unit: number)
 	return UDim.new(0, unit)
 end
 
-const function toUDim2(unit: number)
+const function toUDim2(unit: number | UDim2)
+	if typeof(unit) == "UDim2" then
+		return unit
+	end
 	return UDim2.fromOffset(unit, unit)
 end
 

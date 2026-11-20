@@ -18,8 +18,6 @@ export type Rule = {
 	selector: string,
 	properties: { [string]: any },
 	priority: number?,
-	-- Set when the rule sets one component of a composite property, like the Weight of FontFace. Tags that set
-	-- other components of the same property are merged by a rule for their compound selector.
 	component: Component?,
 }
 export type Component = { property: string, components: { [string]: any }, selectorSuffix: string }
@@ -56,7 +54,6 @@ const function variantsToCombinator(variants: { string }): string
 	return ""
 end
 
--- What a lone component of a composite property is combined with, e.g. `font-bold` keeps the sans family
 const function compositeBase(property: string, tokens: Tokens): any
 	if property == "FontFace" then
 		return Font.new(tokens["font-sans"], tokens["font-weight-normal"])
@@ -82,8 +79,6 @@ const function resolveProperties(pattern: patterns.Pattern, tagValue: string, to
 			properties[property] = convertValue(property, value)
 		end
 	elseif pattern.subtokens ~= nil then
-		-- Values made of several tokens, like shadow-lg--offset-1 and shadow-lg--blur-1. Only the first layer is
-		-- used, since an instance has one of each pseudo-instance.
 		for subtoken, property in pattern.subtokens do
 			const value = tokens[`{pattern.namespace}-{tagValue}--{subtoken}-1`]
 			if value ~= nil then

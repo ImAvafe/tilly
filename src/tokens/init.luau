@@ -9,6 +9,7 @@ local delay = require("@self/namespaces/delay")
 local duration = require("@self/namespaces/duration")
 local ease = require("@self/namespaces/ease")
 local font = require("@self/namespaces/font")
+local fraction = require("@self/namespaces/fraction")
 local insetShadow = require("@self/namespaces/insetShadow")
 local fontWeight = require("@self/namespaces/fontWeight")
 local leading = require("@self/namespaces/leading")
@@ -55,6 +56,7 @@ return table.freeze(mergeTokensets({
 	duration,
 	ease,
 	font,
+	fraction,
 	insetShadow,
 	fontWeight,
 	leading,
