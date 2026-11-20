@@ -53,11 +53,11 @@ return mergeTokensets({ defaultTokens, THEME })
 ```
 
 ```luau [tag.luau]
-const tilly = require("@packages/tilly")
+const Tilly = require("@packages/tilly")
 const styleSheet = require("@src/style/styleSheet")
 const tokens = require("@src/style/tokens")
 
-return tilly(styleSheet, tokens) -- returns addTags(), destroy()
+return Tilly.new(styleSheet, tokens) -- has :addTags() and :destroy()
 ```
 
 ```luau [init.luau]

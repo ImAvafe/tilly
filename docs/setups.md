@@ -15,19 +15,19 @@ Otherwise, feel free to ignore this page!
 ::: code-group
 
 ```luau [Vide]
-const tilly = require("@src/vendor/tilly")
+const Tilly = require("@src/vendor/tilly")
 const vide = require("@packages/vide")
 const styleSheet = require("@src/style/styleSheet")
 const tokens = require("@src/style/tokens")
 
 vide.defaults = false -- disables default properties that interfere with our styling
 
-const addTags = tilly(styleSheet, tokens)
+const tilly = Tilly.new(styleSheet, tokens)
 
-const function tag<Tags>(tags: tilly.TagsInput<typeof(tokens), Tags>)
+const function tag<Tags>(tags: Tilly.TagsInput<typeof(tokens), Tags>)
 	return vide.action(function(instance)
 		if type(tags) == "string" then
-			addTags(instance, tags)
+			tilly:addTags(instance, tags)
 			return
 		end
 
@@ -38,7 +38,7 @@ const function tag<Tags>(tags: tilly.TagsInput<typeof(tokens), Tags>)
 					removeTags()
 					removeTags = nil
 				end
-				removeTags = addTags(instance, (tags :: any)() :: "")
+				removeTags = tilly:addTags(instance, (tags :: any)() :: "")
 			end)
 		end
 	end)

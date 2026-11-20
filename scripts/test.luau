@@ -12,7 +12,7 @@
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 
-local tilly = require(script.Parent) :: any
+local Tilly = require(script.Parent) :: any
 local defaultTokens = require("./tokens")
 local generateTags = require("./generateTags")
 local mergeTokensets = require("./util/mergeTokensets")
@@ -103,7 +103,7 @@ const function readRuleProperty(rule: StyleRule, property: string): any
 	return rule:GetProperty(property)
 end
 
--- The selector Tilly should give a compound rule, built independently of `addCompositeRules`
+-- The selector Tilly should give a compound rule, built independently of `Tilly._addCompositeRules`
 const function compoundSelector(tags: { string }, selectorSuffix: string): string
 	const sanitized = {}
 	for _, tag in tags do
@@ -173,7 +173,7 @@ const function runTests(options: Options?): Report
 
 	root.Parent = parent
 
-	const addTags, destroy = tilly(styleSheet, config.tokens)
+	const tilly = Tilly.new(styleSheet, config.tokens)
 
 	local pending: { Pending } = {}
 	local frameCount = 0
@@ -187,7 +187,7 @@ const function runTests(options: Options?): Report
 	end
 
 	const function tryAddTags(case: string, frame: Frame, tags: string): boolean
-		const ok, err = pcall(addTags, frame, tags)
+		const ok, err = pcall(tilly.addTags, tilly, frame, tags)
 		if not ok then
 			fail(case, `addTags("{tags}") errored: {err}`)
 		end
@@ -873,7 +873,7 @@ const function runTests(options: Options?): Report
 	do
 		const case = "cleanup"
 		const frame = newFrame(case)
-		const ok, removeTags = pcall(addTags, frame, "w-4 h-8 bg-red-500")
+		const ok, removeTags = pcall(tilly.addTags, tilly, frame, "w-4 h-8 bg-red-500")
 		if not ok then
 			fail(case, `addTags errored: {removeTags}`)
 		else
@@ -910,9 +910,9 @@ const function runTests(options: Options?): Report
 	do
 		const case = "destroy"
 		const otherSheet = Instance.new("StyleSheet")
-		const otherAddTags, otherDestroy = tilly(otherSheet, config.tokens)
-		otherAddTags(Instance.new("Frame"), "w-4 h-8 bg-red-500 hover:bg-blue-500 font-bold font-mono")
-		otherDestroy()
+		const other = Tilly.new(otherSheet, config.tokens)
+		other:addTags(Instance.new("Frame"), "w-4 h-8 bg-red-500 hover:bg-blue-500 font-bold font-mono")
+		other:destroy()
 		const left = {}
 		for _, child in otherSheet:GetChildren() do
 			table.insert(left, child.Name)
@@ -923,7 +923,7 @@ const function runTests(options: Options?): Report
 
 	-- Teardown
 
-	destroy()
+	tilly:destroy()
 	if config.keep then
 		print(`[tilly test] kept {root:GetFullName()}`)
 	else

@@ -3,7 +3,7 @@
 local HttpService = game:GetService("HttpService")
 local ServerStorage = game:GetService("ServerStorage")
 
-local tilly = require(script.Parent) :: any
+local Tilly = require(script.Parent) :: any
 local defaultTokens = require("./tokens")
 local generateTags = require("./generateTags")
 local mergeTokensets = require("./util/mergeTokensets")
@@ -43,8 +43,7 @@ export type Report = {
 
 type Context = {
 	sheet: StyleSheet,
-	addTags: (Instance, string) -> () -> (),
-	destroy: () -> (),
+	tilly: any,
 }
 
 type Case = {
@@ -83,16 +82,14 @@ local root: Folder? = nil
 const function newContext(tokens: { [string]: any }?): Context
 	const sheet = Instance.new("StyleSheet")
 	sheet.Parent = root
-	const addTags, destroy = tilly(sheet, tokens)
 	return {
 		sheet = sheet,
-		addTags = addTags,
-		destroy = destroy,
+		tilly = Tilly.new(sheet, tokens),
 	}
 end
 
 const function destroyContext(context: Context)
-	context.destroy()
+	context.tilly:destroy()
 	context.sheet:Destroy()
 end
 
@@ -164,12 +161,11 @@ const function buildCases(options: Options): { Case }
 			return { sheet = sheet }
 		end,
 		run = function(state)
-			const _, destroy = tilly(state.sheet, customTokens)
-			state.destroy = destroy
+			state.tilly = Tilly.new(state.sheet, customTokens)
 			return 1
 		end,
 		teardown = function(state)
-			state.destroy()
+			state.tilly:destroy()
 			state.sheet:Destroy()
 		end,
 	})
@@ -187,12 +183,11 @@ const function buildCases(options: Options): { Case }
 			return { sheet = sheet }
 		end,
 		run = function(state)
-			const _, destroy = tilly(state.sheet, manyTokens)
-			state.destroy = destroy
+			state.tilly = Tilly.new(state.sheet, manyTokens)
 			return 1
 		end,
 		teardown = function(state)
-			state.destroy()
+			state.tilly:destroy()
 			state.sheet:Destroy()
 		end,
 	})
@@ -205,7 +200,7 @@ const function buildCases(options: Options): { Case }
 			const context = newContext(customTokens)
 			const frame = Instance.new("Frame")
 			for index = 1, 2000 do
-				context.addTags(frame, `p-{index}`)
+				context.tilly:addTags(frame, `p-{index}`)
 			end
 			return {
 				context = context,
@@ -214,7 +209,7 @@ const function buildCases(options: Options): { Case }
 			}
 		end,
 		run = function(state)
-			state.context.destroy()
+			state.context.tilly:destroy()
 			return state.rules
 		end,
 		teardown = function(state)
@@ -286,9 +281,9 @@ const function buildCases(options: Options): { Case }
 			}
 		end,
 		run = function(state)
-			const addTags = state.context.addTags
+			const tilly = state.context.tilly
 			for index, tag in allTags do
-				addTags(state.frames[index], tag)
+				tilly:addTags(state.frames[index], tag)
 			end
 			return #allTags
 		end,
@@ -311,7 +306,7 @@ const function buildCases(options: Options): { Case }
 				}
 			end,
 			run = function(state)
-				state.context.addTags(state.frame, tags)
+				state.context.tilly:addTags(state.frame, tags)
 				return countTags(tags)
 			end,
 			teardown = function(state)
@@ -327,7 +322,7 @@ const function buildCases(options: Options): { Case }
 			setup = function()
 				const context = newContext(customTokens)
 				const warm = Instance.new("Frame")
-				context.addTags(warm, tags)
+				context.tilly:addTags(warm, tags)
 				const frames = newFrames(INSTANCES)
 				table.insert(frames, warm)
 				return {
@@ -336,9 +331,9 @@ const function buildCases(options: Options): { Case }
 				}
 			end,
 			run = function(state)
-				const addTags = state.context.addTags
+				const tilly = state.context.tilly
 				for index = 1, INSTANCES do
-					addTags(state.frames[index], tags)
+					tilly:addTags(state.frames[index], tags)
 				end
 				return INSTANCES
 			end,
@@ -357,7 +352,7 @@ const function buildCases(options: Options): { Case }
 				const frames = newFrames(INSTANCES)
 				const cleanups = table.create(INSTANCES)
 				for index, frame in frames do
-					cleanups[index] = context.addTags(frame, tags)
+					cleanups[index] = context.tilly:addTags(frame, tags)
 				end
 				return {
 					context = context,
@@ -386,7 +381,7 @@ const function buildCases(options: Options): { Case }
 			setup = function()
 				const context = newContext(customTokens)
 				const warm = Instance.new("Frame")
-				context.addTags(warm, "p-1")
+				context.tilly:addTags(warm, "p-1")
 				const frame = Instance.new("Frame")
 				for index = 1, existing do
 					frame:AddTag(`existing-{index}`)
@@ -398,9 +393,9 @@ const function buildCases(options: Options): { Case }
 				}
 			end,
 			run = function(state)
-				const addTags = state.context.addTags
+				const tilly = state.context.tilly
 				for _ = 1, CACHED_CALLS do
-					addTags(state.frame, "p-1")
+					tilly:addTags(state.frame, "p-1")
 				end
 				return CACHED_CALLS
 			end,
@@ -421,7 +416,7 @@ const function buildCases(options: Options): { Case }
 				const context = newContext(customTokens)
 				const frame = Instance.new("Frame")
 				for index = 1, size do
-					context.addTags(frame, `p-{index}`)
+					context.tilly:addTags(frame, `p-{index}`)
 				end
 				const frames = newFrames(UNIQUE_TAGS)
 				table.insert(frames, frame)
@@ -431,9 +426,9 @@ const function buildCases(options: Options): { Case }
 				}
 			end,
 			run = function(state)
-				const addTags = state.context.addTags
+				const tilly = state.context.tilly
 				for index = 1, UNIQUE_TAGS do
-					addTags(state.frames[index], `p-{size + index}`)
+					tilly:addTags(state.frames[index], `p-{size + index}`)
 				end
 				return UNIQUE_TAGS
 			end,
@@ -483,9 +478,9 @@ const function buildCases(options: Options): { Case }
 				}
 			end,
 			run = function(state)
-				const addTags = state.context.addTags
+				const tilly = state.context.tilly
 				for index, tags in tagPairs do
-					addTags(state.frames[index], tags)
+					tilly:addTags(state.frames[index], tags)
 				end
 				return #tagPairs
 			end,
