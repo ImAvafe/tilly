@@ -1,7 +1,6 @@
 --!strict
 
 local HttpService = game:GetService("HttpService")
-local ServerStorage = game:GetService("ServerStorage")
 
 local Tilly = require(script.Parent) :: any
 local defaultTokens = require("./tokens")
@@ -77,20 +76,16 @@ const STRINGS = {
 const STRING_NAMES = { "button", "card", "composite" }
 const INVALID_TAGS = { "bg-not-a-color", "nope-4", "hover:zzz", "w-4-4-4-4" }
 
-local root: Folder? = nil
-
 const function newContext(tokens: { [string]: any }?): Context
-	const sheet = Instance.new("StyleSheet")
-	sheet.Parent = root
+	const tilly = Tilly.new(tokens)
 	return {
-		sheet = sheet,
-		tilly = Tilly.new(sheet, tokens),
+		sheet = tilly.styleSheet,
+		tilly = tilly,
 	}
 end
 
 const function destroyContext(context: Context)
 	context.tilly:destroy()
-	context.sheet:Destroy()
 end
 
 const function newFrames(count: number): { Frame }
@@ -156,17 +151,14 @@ const function buildCases(options: Options): { Case }
 		name = "init",
 		unit = "call",
 		setup = function()
-			const sheet = Instance.new("StyleSheet")
-			sheet.Parent = root
-			return { sheet = sheet }
+			return {}
 		end,
 		run = function(state)
-			state.tilly = Tilly.new(state.sheet, customTokens)
+			state.tilly = Tilly.new(customTokens)
 			return 1
 		end,
 		teardown = function(state)
 			state.tilly:destroy()
-			state.sheet:Destroy()
 		end,
 	})
 
@@ -178,17 +170,14 @@ const function buildCases(options: Options): { Case }
 		name = `init, {CUSTOM_TOKENS} custom tokens`,
 		unit = "call",
 		setup = function()
-			const sheet = Instance.new("StyleSheet")
-			sheet.Parent = root
-			return { sheet = sheet }
+			return {}
 		end,
 		run = function(state)
-			state.tilly = Tilly.new(state.sheet, manyTokens)
+			state.tilly = Tilly.new(manyTokens)
 			return 1
 		end,
 		teardown = function(state)
 			state.tilly:destroy()
-			state.sheet:Destroy()
 		end,
 	})
 
@@ -213,7 +202,6 @@ const function buildCases(options: Options): { Case }
 			return state.rules
 		end,
 		teardown = function(state)
-			state.context.sheet:Destroy()
 			state.frame:Destroy()
 		end,
 	})
@@ -573,11 +561,6 @@ const function runBench(options: Options?): Report
 	const threshold = config.threshold or DEFAULT_THRESHOLD
 	const baseline = config.baseline
 
-	const folder = Instance.new("Folder")
-	folder.Name = "TillyBench"
-	folder.Parent = ServerStorage
-	root = folder
-
 	const report: Report = {
 		results = {},
 		regressions = {},
@@ -663,9 +646,6 @@ const function runBench(options: Options?): Report
 			`calibration time changed by {formatChange(drift)} during the run, so results are unreliable; run again`
 		)
 	end
-
-	folder:Destroy()
-	root = nil
 
 	const lines = { string.format("%-44s %10s %10s %8s", "case", "median", "p90", "change") }
 	for _, result in report.results do

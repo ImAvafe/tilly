@@ -1,3 +1,5 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local mergeTokensets = require("@self/util/mergeTokensets")
 local defaultTokens = require("@self/tokens")
 local propertyDefaults = require("@self/util/propertyDefaults")
@@ -13,14 +15,15 @@ export type AddTag<Tokens> = types.AddTag<Tokens>
 export type DefaultTokens = typeof(defaultTokens)
 
 export type Tilly<Tokens> = {
-	_styleSheet: StyleSheet,
+	styleSheet: StyleSheet,
 	_tokens: types.Tokenset,
-	_defaultRules: { StyleRule },
+	_styleLinks: { [StyleLink]: true },
 	_resolvedStyleRules: { [string]: StyleRule | false },
 	_componentRules: { [string]: types.Rule },
 	_addCompositeRules: (self: Tilly<Tokens>, instance: Instance) -> (),
 
 	addTags: <Tags>(self: Tilly<Tokens>, instance: Instance, tags: TagsInput<Tokens, Tags>) -> () -> (),
+	mount: (self: Tilly<Tokens>, root: Instance) -> () -> (),
 	destroy: (self: Tilly<Tokens>) -> (),
 }
 
@@ -77,19 +80,23 @@ function Tilly._addCompositeRules(self: Tilly<any>, instance: Instance)
 		end
 		const priority = componentRules[tagsByPriority[#tagsByPriority]].priority or 0
 		const styleRule = createStyleRule(selector, { [component.property] = value }, priority + 1)
-		styleRule.Parent = self._styleSheet
+		styleRule.Parent = self.styleSheet
 		resolvedStyleRules[selector] = styleRule
 	end
 end
 
 --[[
-Constructs a new Tilly object, pointed at the given stylesheet. Pass in custom tokens for theming
+Constructs a new Tilly object. Pass in custom tokens for theming
 ]]
-function Tilly.new<Tokens>(styleSheet: StyleSheet, tokens: Tokens?)
+function Tilly.new<Tokens>(tokens: Tokens?)
+	const styleSheet = Instance.new("StyleSheet")
+	styleSheet.Name = "Tilly"
+	styleSheet.Archivable = false
+
 	const self = {
-		_styleSheet = styleSheet,
+		styleSheet = styleSheet,
 		_tokens = (mergeTokensets :: any)({ defaultTokens, tokens or {} }),
-		_defaultRules = {} :: { StyleRule },
+		_styleLinks = {},
 		_resolvedStyleRules = {},
 		_componentRules = {},
 	} :: Tilly<types.WithTokens<typeof(defaultTokens), typeof(tokens)>>
@@ -98,8 +105,9 @@ function Tilly.new<Tokens>(styleSheet: StyleSheet, tokens: Tokens?)
 	for className, properties in propertyDefaults do
 		const styleRule = createStyleRule(className, properties, -1)
 		styleRule.Parent = styleSheet
-		table.insert(self._defaultRules, styleRule)
 	end
+
+	styleSheet.Parent = ReplicatedStorage
 
 	return self
 end
@@ -123,7 +131,7 @@ function Tilly.addTags(self: Tilly<any>, instance: Instance, tags: string): () -
 			-- An invalid tag is stored as false so it's never resolved again
 			if rule ~= nil then
 				const styleRule = createStyleRule(rule.selector, rule.properties, rule.priority or 0)
-				styleRule.Parent = self._styleSheet
+				styleRule.Parent = self.styleSheet
 				resolvedStyleRules[tag] = styleRule
 			else
 				resolvedStyleRules[tag] = false
@@ -153,17 +161,31 @@ function Tilly.addTags(self: Tilly<any>, instance: Instance, tags: string): () -
 end
 
 --[[
-Destroys every `StyleRule` this Tilly object created
+Applies styles to the given root and returns a function to unmount
+]]
+function Tilly.mount(self: Tilly<any>, root: Instance): () -> ()
+	const styleLink = Instance.new("StyleLink")
+	styleLink.Name = "Tilly"
+	styleLink.Archivable = false
+	styleLink.StyleSheet = self.styleSheet
+	styleLink.Parent = root
+	self._styleLinks[styleLink] = true
+
+	return function()
+		self._styleLinks[styleLink] = nil
+		styleLink:Destroy()
+	end
+end
+
+--[[
+Destroys this Tilly object and its contents
 ]]
 function Tilly.destroy(self: Tilly<any>)
-	for _, styleRule in self._defaultRules do
-		styleRule:Destroy()
+	for styleLink in self._styleLinks do
+		styleLink:Destroy()
 	end
-	for _, styleRule in self._resolvedStyleRules do
-		if styleRule then
-			styleRule:Destroy()
-		end
-	end
+	table.clear(self._styleLinks)
+	self.styleSheet:Destroy()
 end
 
 return Tilly

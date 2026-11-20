@@ -163,17 +163,11 @@ const function runTests(options: Options?): Report
 	root.Name = "TillyTest"
 	root.ResetOnSpawn = false
 
-	const styleSheet = Instance.new("StyleSheet")
-	styleSheet.Name = "TillyTestStyleSheet"
-	styleSheet.Parent = root
-
-	const styleLink = Instance.new("StyleLink")
-	styleLink.StyleSheet = styleSheet
-	styleLink.Parent = root
-
 	root.Parent = parent
 
-	const tilly = Tilly.new(styleSheet, config.tokens)
+	const tilly = Tilly.new(config.tokens)
+	const styleSheet = tilly.styleSheet
+	tilly:mount(root)
 
 	local pending: { Pending } = {}
 	local frameCount = 0
@@ -906,19 +900,21 @@ const function runTests(options: Options?): Report
 		end
 	end
 
-	-- `destroy` should remove every rule it made, on a StyleSheet of its own
+	-- `destroy` should remove its StyleSheet and every StyleLink it made
 	do
 		const case = "destroy"
-		const otherSheet = Instance.new("StyleSheet")
-		const other = Tilly.new(otherSheet, config.tokens)
+		const other = Tilly.new(config.tokens)
+		const otherSheet = other.styleSheet
+		const mounted = Instance.new("Folder")
+		const unmounted = Instance.new("Folder")
+		other:mount(mounted)
+		other:mount(unmounted)()
 		other:addTags(Instance.new("Frame"), "w-4 h-8 bg-red-500 hover:bg-blue-500 font-bold font-mono")
+		expect(case, unmounted:FindFirstChildOfClass("StyleLink") == nil, "unmount left its StyleLink")
 		other:destroy()
-		const left = {}
-		for _, child in otherSheet:GetChildren() do
-			table.insert(left, child.Name)
-		end
-		expect(case, #left == 0, `{#left} rules left after destroy: {table.concat(left, ", ")}`)
-		otherSheet:Destroy()
+		expect(case, otherSheet.Parent == nil, "StyleSheet still parented after destroy")
+		expect(case, #otherSheet:GetChildren() == 0, `{#otherSheet:GetChildren()} rules left after destroy`)
+		expect(case, mounted:FindFirstChildOfClass("StyleLink") == nil, "StyleLink left after destroy")
 	end
 
 	-- Teardown
