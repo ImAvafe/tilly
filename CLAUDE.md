@@ -6,11 +6,13 @@ Tilly is a Tailwind-style utility tag library for Roblox UI. It runs entirely at
 
 Tools are managed by Rokit (`rokit.toml`): lune, rojo, stylua, rodeo, wally, luau-lsp.
 
-All scripts in `scripts/` are run with **Lune**, except `scripts/test.luau`:
+All scripts in `scripts/` are run with **Lune**, except `scripts/test.luau`, `scripts/bench.luau` and `scripts/generateTags.luau`:
 
 - `lune run scripts/dev` kills any running rojo, then runs `rojo sourcemap --watch` and `rojo serve` on `default.project.json`.
 - `lune run scripts/studio` opens `testPlace.rbxl` in Studio through rodeo.
 - `scripts/test.luau` is **not** a Lune script. Run it in Studio through the **Studio MCP**. It requires its siblings with `script.Parent` and `./tokens`, `./patterns`, etc., so it must run as a ModuleScript that is a child of the Tilly module (`ReplicatedStorage.tilly` under `default.project.json`). Create it there with the contents of `scripts/test.luau`, then run `require(game.ReplicatedStorage.tilly.test)()` (it takes an optional `Options` table and returns a `Report`). The usage comment in the file names a different path (Avalog vendor); ignore that.
+- `scripts/generateTags.luau` builds every tag the patterns and tokens allow, for both the tests and the benchmarks. Create it as `ReplicatedStorage.tilly.generateTags` alongside them.
+- `scripts/bench.luau` is also **not** a Lune script and is set up the same way, as `ReplicatedStorage.tilly.bench`. Run it on a fresh clone of `tilly` (Studio caches required modules and would time stale code), as the doc comment on `runBench` shows. A run takes about 7 seconds. Run it once per `execute_luau` call with an `operation_id`, and wait on `get_request_status` if the call times out instead of starting another: two back-to-back runs in one call froze Studio. It returns a report whose `json` is saved to `.bench/<commit>.json` (gitignored, and only valid on the same machine) and passed back as `baseline` to compare runs.
 
 Format with `stylua src scripts`. `src` uses `--!strict` through `.luaurc`. `scripts/.luaurc` disables type checking and lint for scripts.
 
@@ -36,3 +38,5 @@ The `.claude/` folder (gitignored) has research notes: `mappings.md` (Tailwindâ†
 - Use `const` for bindings that are never reassigned and `local` only when they are, matching the existing code.
 - Use tab indentation, and keep call parentheses as written (stylua `call_parentheses = "Input"`).
 - A table with two or more items goes one item per line. A single-item table or a short array of plain values (`{ "X", "Y" }`) can stay inline.
+- No explainer comments. Only add a comment when it adds real value, such as a non-obvious reason or constraint the code can't show. No section-header comments or comments that restate the code.
+- Document a function with a `--[[ ]]` multiline comment directly above its definition, so it shows in autocomplete. Don't use `--` line comments for function docs.
