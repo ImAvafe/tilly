@@ -1,6 +1,7 @@
 local mergeTokensets = require("./util/mergeTokensets")
 
 local aspect = require("@self/namespaces/aspect")
+local automaticSize = require("@self/namespaces/automaticSize")
 local breakpoint = require("@self/namespaces/breakpoint")
 local color = require("@self/namespaces/color")
 local container = require("@self/namespaces/container")
@@ -24,6 +25,11 @@ local flexMode = require("@self/namespaces/flexMode")
 local grow = require("@self/namespaces/grow")
 local shrink = require("@self/namespaces/shrink")
 local itemAlignment = require("@self/namespaces/itemAlignment")
+local horizontalAlignment = require("@self/namespaces/horizontalAlignment")
+local verticalAlignment = require("@self/namespaces/verticalAlignment")
+local flexAlignment = require("@self/namespaces/flexAlignment")
+local placeContent = require("@self/namespaces/placeContent")
+local maxCells = require("@self/namespaces/maxCells")
 local hidden = require("@self/namespaces/hidden")
 local visible = require("@self/namespaces/visible")
 local overflow = require("@self/namespaces/overflow")
@@ -41,6 +47,7 @@ local z = require("@self/namespaces/z")
 
 return table.freeze(mergeTokensets({
 	aspect,
+	automaticSize,
 	breakpoint,
 	color,
 	container,
@@ -64,6 +71,11 @@ return table.freeze(mergeTokensets({
 	grow,
 	shrink,
 	itemAlignment,
+	horizontalAlignment,
+	verticalAlignment,
+	flexAlignment,
+	placeContent,
+	maxCells,
 	hidden,
 	visible,
 	overflow,

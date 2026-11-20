@@ -3,7 +3,10 @@ export type Pattern = {
 	properties: { string },
 	manualProperties: { [string]: any }?,
 	pseudoInstance: string?,
-	propertyComponent: string?,
+	propertyComponent: string?, -- Sets only this component of the property, like X of a Size
+	-- Properties set from `{namespace}-{value}--{subtoken}-1` tokens, or components from `{namespace}-{value}--{subtoken}`
+	-- tokens when `propertyComponent` is set
+	subtokens: { [string]: string }?,
 }
 
 const PATTERNS: { [string]: { Pattern } } = {
@@ -83,10 +86,32 @@ const PATTERNS: { [string]: { Pattern } } = {
 			pseudoInstance = "UIStroke",
 		},
 	},
+	-- Shadow utils
+	["shadow"] = {
+		{
+			namespace = "shadow",
+			properties = { "Enabled" },
+			pseudoInstance = "UIShadow",
+			subtokens = {
+				offset = "Offset",
+				blur = "BlurRadius",
+				spread = "Spread",
+				color = "Color",
+				transparency = "Transparency",
+			},
+		},
+		{
+			namespace = "color",
+			properties = { "Color" },
+			pseudoInstance = "UIShadow",
+		},
+	},
+
+	-- Corner radius
 	["rounded"] = {
 		{
 			namespace = "radius",
-			properties = { "CornerRadius" },
+			properties = { "TopLeftRadius", "TopRightRadius", "BottomRightRadius", "BottomLeftRadius" },
 			pseudoInstance = "UICorner",
 		},
 	},
@@ -279,14 +304,14 @@ const PATTERNS: { [string]: { Pattern } } = {
 	["gap-x"] = {
 		{
 			namespace = "spacing",
-			properties = { "HorizontalPadding" },
+			properties = { "Padding" },
 			pseudoInstance = "UIListLayout",
 		},
 	},
 	["gap-y"] = {
 		{
 			namespace = "spacing",
-			properties = { "VerticalPadding" },
+			properties = { "Padding" },
 			pseudoInstance = "UIListLayout",
 		},
 	},
@@ -560,6 +585,22 @@ const PATTERNS: { [string]: { Pattern } } = {
 			pseudoInstance = "UIGridLayout",
 		},
 	},
+	["grid-cols"] = {
+		{
+			namespace = "max-cells",
+			properties = { "FillDirectionMaxCells" },
+			manualProperties = { FillDirection = Enum.FillDirection.Horizontal },
+			pseudoInstance = "UIGridLayout",
+		},
+	},
+	["grid-rows"] = {
+		{
+			namespace = "max-cells",
+			properties = { "FillDirectionMaxCells" },
+			manualProperties = { FillDirection = Enum.FillDirection.Vertical },
+			pseudoInstance = "UIGridLayout",
+		},
+	},
 	["grow"] = {
 		{
 			namespace = "grow",
@@ -588,6 +629,83 @@ const PATTERNS: { [string]: { Pattern } } = {
 			pseudoInstance = "UIFlexItem",
 		},
 	},
+	["justify"] = {
+		{
+			namespace = "horizontal-alignment",
+			properties = { "HorizontalAlignment" },
+			manualProperties = { HorizontalFlex = Enum.UIFlexAlignment.None },
+			pseudoInstance = "UIListLayout",
+		},
+		{
+			namespace = "flex-alignment",
+			properties = { "HorizontalFlex" },
+			pseudoInstance = "UIListLayout",
+		},
+	},
+	["content"] = {
+		{
+			namespace = "vertical-alignment",
+			properties = { "VerticalAlignment" },
+			manualProperties = { VerticalFlex = Enum.UIFlexAlignment.None },
+			pseudoInstance = "UIListLayout",
+		},
+		{
+			namespace = "flex-alignment",
+			properties = { "VerticalFlex" },
+			pseudoInstance = "UIListLayout",
+		},
+	},
+	["place-content"] = {
+		{
+			namespace = "place-content-start",
+			properties = { "HorizontalAlignment" },
+			manualProperties = {
+				VerticalAlignment = Enum.VerticalAlignment.Top,
+				HorizontalFlex = Enum.UIFlexAlignment.None,
+				VerticalFlex = Enum.UIFlexAlignment.None,
+			},
+			pseudoInstance = "UIListLayout",
+		},
+		{
+			namespace = "place-content-center",
+			properties = { "HorizontalAlignment" },
+			manualProperties = {
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+				HorizontalFlex = Enum.UIFlexAlignment.None,
+				VerticalFlex = Enum.UIFlexAlignment.None,
+			},
+			pseudoInstance = "UIListLayout",
+		},
+		{
+			namespace = "place-content-end",
+			properties = { "HorizontalAlignment" },
+			manualProperties = {
+				VerticalAlignment = Enum.VerticalAlignment.Bottom,
+				HorizontalFlex = Enum.UIFlexAlignment.None,
+				VerticalFlex = Enum.UIFlexAlignment.None,
+			},
+			pseudoInstance = "UIListLayout",
+		},
+		{
+			namespace = "flex-alignment",
+			properties = { "HorizontalFlex", "VerticalFlex" },
+			pseudoInstance = "UIListLayout",
+		},
+	},
+	["place-items"] = {
+		{
+			namespace = "item-alignment",
+			properties = { "ItemLineAlignment" },
+			pseudoInstance = "UIListLayout",
+		},
+	},
+	["place-self"] = {
+		{
+			namespace = "item-alignment",
+			properties = { "ItemLineAlignment" },
+			pseudoInstance = "UIFlexItem",
+		},
+	},
 	["order"] = {
 		{
 			namespace = "order",
@@ -610,6 +728,12 @@ const PATTERNS: { [string]: { Pattern } } = {
 		{
 			namespace = "visible",
 			properties = { "Visible" },
+		},
+	},
+	["auto"] = {
+		{
+			namespace = "automatic-size",
+			properties = { "AutomaticSize" },
 		},
 	},
 	["overflow"] = {
@@ -663,6 +787,37 @@ const PATTERNS: { [string]: { Pattern } } = {
 		{
 			namespace = "rotate",
 			properties = { "Rotation" },
+		},
+	},
+
+	-- Transition utils set the default transition, which applies to every property
+	["transition"] = {
+		{
+			namespace = "duration",
+			properties = { "*" },
+			propertyComponent = "Time",
+		},
+	},
+	["duration"] = {
+		{
+			namespace = "duration",
+			properties = { "*" },
+			propertyComponent = "Time",
+		},
+	},
+	["ease"] = {
+		{
+			namespace = "ease",
+			properties = { "*" },
+			propertyComponent = "EasingStyle",
+			subtokens = { direction = "EasingDirection" },
+		},
+	},
+	["delay"] = {
+		{
+			namespace = "delay",
+			properties = { "*" },
+			propertyComponent = "DelayTime",
 		},
 	},
 }

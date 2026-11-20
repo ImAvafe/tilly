@@ -21,11 +21,13 @@ const function toTransparency(unit: number)
 	return math.clamp(unit, 0, 1)
 end
 
-const function toFont(family: string | EnumItem)
-	if typeof(family) == "string" then
-		return Font.new(family)
+const function toFont(familyOrWeight: string | EnumItem)
+	if typeof(familyOrWeight) == "string" then
+		return Font.new(familyOrWeight)
+	elseif typeof(familyOrWeight) == "EnumItem" then
+		return Font.new("", familyOrWeight :: Enum.FontWeight)
 	end
-	return family :: any
+	return familyOrWeight :: any
 end
 
 const CONVERSIONS: { [string]: (any) -> any } = {

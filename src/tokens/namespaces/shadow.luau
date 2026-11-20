@@ -1,4 +1,5 @@
 const SHADOW = {
+	["shadow-none"] = false,
 	["shadow-2xs--offset-1"] = Vector2.new(0, 1),
 	["shadow-2xs--blur-1"] = 0,
 	["shadow-2xs--spread-1"] = 0,

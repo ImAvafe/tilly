@@ -1,5 +1,7 @@
 local convertValue = require("./util/convertValue")
 local patterns = require("./patterns")
+local sanitizeTag = require("./util/sanitizeTag")
+local withComponents = require("./util/withComponents")
 
 const VARIANT_GUI_STATES = {
 	hover = Enum.GuiState.Hover.Name,
@@ -7,12 +9,20 @@ const VARIANT_GUI_STATES = {
 	disabled = Enum.GuiState.NonInteractable.Name,
 }
 
+const VARIANT_COMBINATORS = {
+	["*"] = " > GuiObject",
+	["**"] = " >> GuiObject",
+}
+
 export type Rule = {
 	selector: string,
 	properties: { [string]: any },
 	priority: number?,
-	propertyComponent: string?,
+	-- Set when the rule sets one component of a composite property, like the Weight of FontFace. Tags that set
+	-- other components of the same property are merged by a rule for their compound selector.
+	component: Component?,
 }
+export type Component = { property: string, components: { [string]: any }, selectorSuffix: string }
 export type Tokens = { [string]: any }
 
 const function parseMultiplier(multiplier: string): number?
@@ -36,52 +46,113 @@ const function variantsToGuiStateSuffix(variants: { string }): string
 	return guiStatesSuffix
 end
 
+const function variantsToCombinator(variants: { string }): string
+	for _, variant in variants do
+		const combinator = VARIANT_COMBINATORS[variant]
+		if combinator ~= nil then
+			return combinator
+		end
+	end
+	return ""
+end
+
+-- What a lone component of a composite property is combined with, e.g. `font-bold` keeps the sans family
+const function compositeBase(property: string, tokens: Tokens): any
+	if property == "FontFace" then
+		return Font.new(tokens["font-sans"], tokens["font-weight-normal"])
+	elseif property == "MinSize" then
+		return Vector2.zero
+	elseif property == "MaxSize" then
+		return Vector2.new(math.huge, math.huge)
+	elseif property == "*" then
+		return TweenInfo.new(tokens["duration-default"], tokens["ease-default"], tokens["ease-default--direction"])
+	end
+	return UDim2.new()
+end
+
+const function resolveProperties(pattern: patterns.Pattern, tagValue: string, tokens: Tokens): { [string]: any }?
+	const token = tokens[`{pattern.namespace}-{tagValue}`]
+	const baseMultiplierToken = tokens[pattern.namespace]
+	const multiplier = parseMultiplier(tagValue)
+	const properties = {}
+
+	if token ~= nil or (baseMultiplierToken and multiplier) then
+		const value = if token ~= nil then token else baseMultiplierToken * multiplier
+		for _, property in pattern.properties do
+			properties[property] = convertValue(property, value)
+		end
+	elseif pattern.subtokens ~= nil then
+		-- Values made of several tokens, like shadow-lg--offset-1 and shadow-lg--blur-1. Only the first layer is
+		-- used, since an instance has one of each pseudo-instance.
+		for subtoken, property in pattern.subtokens do
+			const value = tokens[`{pattern.namespace}-{tagValue}--{subtoken}-1`]
+			if value ~= nil then
+				properties[property] = convertValue(property, value)
+			end
+		end
+	end
+
+	if next(properties) == nil then
+		return nil
+	end
+	for property, value in pattern.manualProperties or {} do
+		properties[property] = value
+	end
+	return properties
+end
+
 const function resolvePattern(
 	tag: string,
 	pattern: patterns.Pattern,
 	tagValue: string,
 	variants: { string },
-	mergedTokens: Tokens
+	tokens: Tokens
 ): Rule?
-	const hardcodedToken = (mergedTokens :: Tokens)[`{pattern.namespace}-{tagValue}`]
-	const baseMultiplierToken = (mergedTokens :: Tokens)[pattern.namespace]
-	const multiplier = parseMultiplier(tagValue)
-	const guiStateSuffix = variantsToGuiStateSuffix(variants)
-
-	if hardcodedToken ~= nil or (baseMultiplierToken and multiplier) then
-		const endValue = if hardcodedToken ~= nil then hardcodedToken else baseMultiplierToken * multiplier
-		const properties = {}
-
-		for _, property in pattern.properties do
-			if endValue ~= nil then
-				properties[property] = convertValue(property, endValue)
-			end
-		end
-
-		if pattern.manualProperties ~= nil then
-			for property, value in pattern.manualProperties do
-				properties[property] = value
-			end
-		end
-
-		if next(properties) ~= nil then
-			const sanitizedTag = string.gsub(tag, "[:%.]", "_")
-			return {
-				selector = if pattern.pseudoInstance
-					then `.{sanitizedTag}::{pattern.pseudoInstance}{guiStateSuffix}`
-					else `.{sanitizedTag}{guiStateSuffix}`,
-				properties = properties,
-				priority = if #variants > 0 then 1 else 0,
-			}
-		end
+	const properties = resolveProperties(pattern, tagValue, tokens)
+	if properties == nil then
+		return nil
 	end
 
-	return nil
+	const pseudoInstance = if pattern.pseudoInstance then `::{pattern.pseudoInstance}` else ""
+	const selectorSuffix = `{variantsToCombinator(variants)}{variantsToGuiStateSuffix(variants)}{pseudoInstance}`
+	const isImportant = string.sub(tag, -1) == "!"
+	const specificity = 4 - #pattern.properties + (if tagValue == "default" then 0 else 1)
+
+	local component = nil
+	if pattern.propertyComponent ~= nil then
+		const property = pattern.properties[1]
+		const base = compositeBase(property, tokens)
+		const value = properties[property]
+		const components = {
+			[pattern.propertyComponent] = if typeof(value) == typeof(base)
+				then value[pattern.propertyComponent]
+				else value,
+		}
+
+		for subtoken, name in pattern.subtokens or {} do
+			components[name] = tokens[`{pattern.namespace}-{tagValue}--{subtoken}`]
+		end
+
+		properties[property] = withComponents(base, components)
+		component = {
+			property = property,
+			components = components,
+			selectorSuffix = selectorSuffix,
+		}
+	end
+
+	return {
+		selector = `.{sanitizeTag(tag)}{selectorSuffix}`,
+		properties = properties,
+		priority = (if isImportant then 100 else 0) + #variants * 10 + specificity,
+		component = component,
+	}
 end
 
 const function resolveTag(tag: string, tokens: Tokens): Rule?
 	const variants = string.split(tag, ":")
-	const utilityParts = string.split(variants[#variants], "-")
+	const utility = string.gsub(variants[#variants], "!$", "")
+	const utilityParts = string.split(utility, "-")
 	table.remove(variants, #variants)
 
 	for _, part in utilityParts do
@@ -92,7 +163,7 @@ const function resolveTag(tag: string, tokens: Tokens): Rule?
 
 	-- Direct resolution for standalone utilities
 	if #utilityParts == 1 then
-		for _, pattern in patterns[tag] or {} do
+		for _, pattern in patterns[utilityParts[1]] or {} do
 			const rule = resolvePattern(tag, pattern, "default", variants, tokens)
 			if rule then
 				return rule
@@ -117,7 +188,7 @@ const function resolveTag(tag: string, tokens: Tokens): Rule?
 	end
 
 	-- aw man :<
-	warn(`\"{tag}\"`, "utility tag is not valid.")
+	warn(`\"{tag}\"`, "utility tag is not valid.", debug.traceback())
 
 	return nil
 end
