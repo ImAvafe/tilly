@@ -1,11 +1,12 @@
 --!strict
 
 local patterns = require("./patterns")
+local types = require("./types")
 
 export type Generated = {
 	tag: string,
 	prefix: string,
-	pattern: patterns.Pattern,
+	pattern: types.Pattern,
 }
 
 export type Tags = {
@@ -37,7 +38,7 @@ end
 --[[
 	Every value of `pattern` that `resolveTag` accepts: its tokens, plus multipliers of a base token.
 ]]
-const function generateValues(pattern: patterns.Pattern, tokens: { [string]: any }): { string }
+const function generateValues(pattern: types.Pattern, tokens: { [string]: any }): { string }
 	const namespace = pattern.namespace
 	const values = {}
 	const seen = {}

@@ -1,4 +1,4 @@
-local tokens = require("./tokens")
+local tokens = require("../tokens")
 
 const PROPERTY_DEFAULTS: { [string]: { [string]: any } } = {
 	GuiObject = {

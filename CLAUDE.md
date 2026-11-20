@@ -20,12 +20,13 @@ Format with `stylua src scripts`. `src` uses `--!strict` through `.luaurc`. `scr
 
 ## Architecture (`src/`)
 
-- `init.luau`: the `tilly(styleSheet, tokens?)` entry point. Merges user tokens over the defaults, creates the property-default rules (priority -1), and returns `addTags(instance, tags) -> cleanup` and `destroy()`. It also holds the type functions for tag autocompletion (`AutocompleteTags`, `WithTokens`) and `addCompositeRules`, which creates a compound-selector rule (`.tagA.tagB`) when two or more tags on an instance set components of the same composite property.
+- `init.luau`: the `tilly(styleSheet, tokens?)` entry point. Merges user tokens over the defaults, creates the property-default rules (priority -1), and returns `addTags(instance, tags) -> cleanup` and `destroy()`. It also holds `addCompositeRules`, which creates a compound-selector rule (`.tagA.tagB`) when two or more tags on an instance set components of the same composite property.
 - `resolveTag.luau`: parses a tag into variants (`hover:`, `active:`, `disabled:`, `*:`, `**:`), an `!` importance suffix, and a utility. It finds the longest matching prefix in `patterns` and resolves the value against tokens, giving a `Rule` (selector, properties, priority, optional `component`). The priority is `100` if the tag is important, plus `10` per variant, plus a specificity term.
 - `patterns.luau`: maps a utility prefix (`bg`, `text`, `rounded`, `w`, ...) to a list of `Pattern`s, which are tried in order. A `Pattern` names a token `namespace`, target `properties`, and optionally `manualProperties`, a `pseudoInstance` (such as `UIPadding`), a `propertyComponent` (it sets one component of a composite such as `Size.X` or `FontFace.Weight`), and `subtokens`.
 - `tokens/*.luau` (besides `init.luau`) each return one `SCREAMING_SNAKE_CASE` table of kebab-case keys `{namespace}-{value}`. A bare `{namespace}` key is a base multiplier, as with `spacing = 4` for `p-4`. Subtokens use `--`, as in `shadow-lg--blur-1` and `ease-out--direction`. A new namespace must be required and added to the list in `tokens/init.luau`.
-- `propertyDefaults.luau`: the base properties per class, applied at priority -1.
-- `util/`: `convertValue` (converts a raw token to the property's type, keyed by property name), `withComponents` (rebuilds a Font, UDim2, Vector2 or TweenInfo with some components replaced), `sanitizeTag` (makes a tag usable in a selector: `**`→`desc`, `*`→`child`, `!`→`_important`, `:`/`.`→`_`), and `mergeTokensets`.
+- `types.luau`: the shared types (`Rule`, `Pattern`, `Tokens`, ...) and the type functions for tag autocompletion (`AutocompleteTags`, `WithTokens`, `MergedTokensets`). `init.luau` re-exports the public ones.
+- `util/propertyDefaults.luau`: the base properties per class, applied at priority -1.
+- `util/`: `propertyDefaults`, `convertValue` (converts a raw token to the property's type, keyed by property name), `withComponents` (rebuilds a Font, UDim2, Vector2 or TweenInfo with some components replaced), `sanitizeTag` (makes a tag usable in a selector: `**`→`desc`, `*`→`child`, `!`→`_important`, `:`/`.`→`_`), and `mergeTokensets`.
 
 The `.claude/` folder (gitignored) has research notes: `mappings.md` (Tailwind→Roblox mappings).
 

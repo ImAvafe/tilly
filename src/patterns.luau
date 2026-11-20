@@ -1,13 +1,6 @@
-export type Pattern = {
-	namespace: string,
-	properties: { string },
-	manualProperties: { [string]: any }?,
-	pseudoInstance: string?,
-	propertyComponent: string?,
-	subtokens: { [string]: string }?,
-}
+local types = require("./types")
 
-const PATTERNS: { [string]: { Pattern } } = {
+const PATTERNS: { [string]: { types.Pattern } } = {
 	-- Background utils
 	["bg"] = {
 		{

@@ -18,6 +18,7 @@ local generateTags = require("./generateTags")
 local mergeTokensets = require("./util/mergeTokensets")
 local resolveTag = require("./resolveTag")
 local sanitizeTag = require("./util/sanitizeTag")
+local types = require("./types")
 local withComponents = require("./util/withComponents")
 
 export type Options = {
@@ -298,7 +299,7 @@ const function runTests(options: Options?): Report
 	end
 
 	-- Checks that each value a rule sets has the type of the property it sets
-	const function checkTypes(case: string, rule: resolveTag.Rule, pseudoInstance: string?)
+	const function checkTypes(case: string, rule: types.Rule, pseudoInstance: string?)
 		for property, value in rule.properties do
 			if property == "*" then
 				expect(case, typeof(value) == "TweenInfo", `transition is {show(value)}, expected a TweenInfo`)
@@ -347,7 +348,7 @@ const function runTests(options: Options?): Report
 
 	-- 1. Every tag on its own
 
-	const resolved: { [string]: resolveTag.Rule } = {}
+	const resolved: { [string]: types.Rule } = {}
 
 	for _, entry in generated do
 		const case = entry.tag

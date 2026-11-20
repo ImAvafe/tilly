@@ -1,6 +1,7 @@
 local convertValue = require("./util/convertValue")
 local patterns = require("./patterns")
 local sanitizeTag = require("./util/sanitizeTag")
+local types = require("./types")
 local withComponents = require("./util/withComponents")
 
 const VARIANT_GUI_STATES = {
@@ -13,15 +14,6 @@ const VARIANT_COMBINATORS = {
 	["*"] = " > GuiObject",
 	["**"] = " >> GuiObject",
 }
-
-export type Rule = {
-	selector: string,
-	properties: { [string]: any },
-	priority: number?,
-	component: Component?,
-}
-export type Component = { property: string, components: { [string]: any }, selectorSuffix: string }
-export type Tokens = { [string]: any }
 
 const function parseMultiplier(multiplier: string): number?
 	if multiplier == "px" then
@@ -54,7 +46,7 @@ const function variantsToCombinator(variants: { string }): string
 	return ""
 end
 
-const function compositeBase(property: string, tokens: Tokens): any
+const function compositeBase(property: string, tokens: types.Tokens): any
 	if property == "FontFace" then
 		return Font.new(tokens["font-sans"], tokens["font-weight-normal"])
 	elseif property == "MinSize" then
@@ -67,7 +59,7 @@ const function compositeBase(property: string, tokens: Tokens): any
 	return UDim2.new()
 end
 
-const function resolveProperties(pattern: patterns.Pattern, tagValue: string, tokens: Tokens): { [string]: any }?
+const function resolveProperties(pattern: types.Pattern, tagValue: string, tokens: types.Tokens): { [string]: any }?
 	const token = tokens[`{pattern.namespace}-{tagValue}`]
 	const baseMultiplierToken = tokens[pattern.namespace]
 	const multiplier = parseMultiplier(tagValue)
@@ -98,11 +90,11 @@ end
 
 const function resolvePattern(
 	tag: string,
-	pattern: patterns.Pattern,
+	pattern: types.Pattern,
 	tagValue: string,
 	variants: { string },
-	tokens: Tokens
-): Rule?
+	tokens: types.Tokens
+): types.Rule?
 	const properties = resolveProperties(pattern, tagValue, tokens)
 	if properties == nil then
 		return nil
@@ -144,7 +136,7 @@ const function resolvePattern(
 	}
 end
 
-const function resolveTag(tag: string, tokens: Tokens): Rule?
+const function resolveTag(tag: string, tokens: types.Tokens): types.Rule?
 	const variants = string.split(tag, ":")
 	const utility = string.gsub(variants[#variants], "!$", "")
 	const utilityParts = string.split(utility, "-")
