@@ -8,6 +8,6 @@ A major difference between Tilly and Tailwind is where they operate: Tilly opera
 
 Implementing Tilly as a build tool would yield marginally better performance while complicating integration with libraries like Vide or Fusion and entirely neglecting Roblox Studio users.
 
-Tilly has allieviated these performance concerns by lazily resolving utility tags. Tags are only ever resolved and rendered into `StyleRule`s when they're applied, and then they're preserved for reuse.
+Tilly has alleviated these performance concerns by lazily resolving utility tags. Tags are only ever resolved and rendered into `StyleRule`s when they're applied, and then they're preserved for reuse.
 
 Although Tilly resolves tags at runtime, most of its processing time concerns the construction of `StyleRule`s themselves, which would also apply to a build tool.

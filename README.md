@@ -1,9 +1,6 @@
-# Tilly -  Tailwind for Roblox
+# Tilly - Tailwind for Roblox
 
 Tilly is a port of Tailwind's functionality and syntax to Roblox stylesheets. Minimize your markup without learning another format.
-
-> [!IMPORTANT]
-> Tilly is not stable or mature enough for use in production! Implementation will change frequently as it approaches maturity.
 
 ## [Get started](https://avafe.me/tilly/start)
 
@@ -14,10 +11,8 @@ Tilly is a port of Tailwind's functionality and syntax to Roblox stylesheets. Mi
 Here's what using Tilly within a component structure looks like.
 
 ```luau
-const style = require("@src/style")
+const tag = require("@src/tag")
 const new = require("@packages/new") -- pretend this is your favorite reactivity library
-
-const tag = style.tag
 
 return function()
 	return new "TextButton" {

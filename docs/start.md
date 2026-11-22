@@ -1,12 +1,15 @@
 # Get started
 
+> [!IMPORTANT]
+> Tilly is not yet stable or mature enough for use in production. Implementation will change frequently as it approaches maturity.
+
 ## Install
 
 Tilly is distributed via Wally and GitHub releases.
 
 ### Using Wally
 
-1. Copy the latest version from [Wally](https://wally.run/package/imavafe/avalog)
+1. Copy the latest version from [Wally](https://wally.run/package/imavafe/tilly)
 2. Paste it into your `wally.toml` under dependencies
 3. Run `wally install`
 
@@ -35,16 +38,19 @@ return Tilly.new(THEME)
 
 ## Add tag function
 
-To make tagging instances more ergonomic, we're going to create a `tag.luau` module that returns a convenient `tag()` function.
-
-If you're using a library like Fusion or Vide, this is especially helpful and allows for tags to be applied reactively.
+To make tagging instances more ergonomic, we're going to create a `tag.luau` module. If you're using a library like Fusion or Vide, this is especially helpful and allows for tags to be applied reactively.
 
 ::: code-group
 
 ```luau [No framework]
+const Tilly = require("@packages/tilly")
 const myTilly = require("@src/myTilly")
 
-return myTilly.addTags
+const function tag<Tags>(instance: Instance, tags: Tilly.TagsInput<typeof(myTilly:getTokens()), Tags>)
+	return myTilly:addTags(instance, tags)
+end
+
+return tag
 ```
 
 ```luau [Vide]

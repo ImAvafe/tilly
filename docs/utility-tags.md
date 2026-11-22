@@ -2,9 +2,11 @@
 
 Utility tags are the core idea of Tilly, allowing you to apply complex styling with minimal markup. Let's break it down.
 
-Utility tags contain several components: a **[prefix](#prefixes)**, the **[value](#values)** it ingests, and optionally **[variants](#variants)** and an [exclamation mark](#importance). The formatting is like so: `{variants}:{prefix}-{value}{!}`.
+Utility tags contain several components: a **[prefix](#prefixes)**, the **[value](#value-types)** it ingests, and optionally **[variants](#variants)** and an [exclamation mark](#importance). The formatting is like so: `{variants}:{prefix}-{value}{!}`.
 
-## Values
+## Value types
+
+Values are passed into utility tags to give them form, like how the `bg` prefix accepts tokens in the `color` namespace. Values can be of the following types, depending on the utility tag's prefix.
 
 | Form                | Resolves to                                                | Examples                                                        |
 | ------------------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
@@ -16,10 +18,12 @@ Utility tags contain several components: a **[prefix](#prefixes)**, the **[value
 
 ## Variants
 
+Variants make utility tags conditional, so the tag applies when the variant target is met.
+
 | Variant     | Targets                               | Priority | Examples              |
 | ----------- | ------------------------------------- | -------- | --------------------- |
 | `hover:`    | `Enum.GuiState.Hover` state           | +10      | `hover:bg-red-400`    |
-| `active:`   | `Enum.GuiState.Active` state          | +10      | `active:bg-red-600`   |
+| `active:`   | `Enum.GuiState.Press` state           | +10      | `active:bg-red-600`   |
 | `disabled:` | `Enum.GuiState.NonInteractable` state | +10      | `disabled:opacity-50` |
 | `*:`        | Child instances                       | +10      | `*:p-2`               |
 | `**:`       | Descendant instances                  | +10      | `**:text-white`       |
@@ -29,6 +33,8 @@ Utility tags contain several components: a **[prefix](#prefixes)**, the **[value
 By appending an exclamation mark `!` to the end of your tag, you give it priority to win out against other tags. This can be useful in resolving styling conflicts.
 
 ## Prefixes
+
+Prefixes can be thought of as the "root" of a utility tag, defining its purpose and the properties it sets.
 
 ### Background
 

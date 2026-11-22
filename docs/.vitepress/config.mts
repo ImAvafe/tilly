@@ -23,6 +23,7 @@ export default defineConfig({
 					{ text: "Mounting your UI", link: "/mounting" },
 					{ text: "Utility tags", link: "/utility-tags" },
 					{ text: "Tokens", link: "/tokens" },
+					{ text: "Theming", link: "/theming" },
 				],
 			},
 		],
