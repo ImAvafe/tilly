@@ -16,7 +16,7 @@ export type DefaultTokens = typeof(defaultTokens)
 
 export type Tilly<Tokens> = {
 	styleSheet: StyleSheet,
-	_tokens: types.Tokenset,
+	_tokens: Tokens,
 	_styleLinks: { [StyleLink]: true },
 	_resolvedStyleRules: { [string]: StyleRule | false },
 	_componentRules: { [string]: types.Rule },
@@ -24,6 +24,7 @@ export type Tilly<Tokens> = {
 
 	addTags: <Tags>(self: Tilly<Tokens>, instance: Instance, tags: TagsInput<Tokens, Tags>) -> () -> (),
 	mount: (self: Tilly<Tokens>, root: Instance) -> () -> (),
+	getTokens: (self: Tilly<Tokens>) -> Tokens,
 	destroy: (self: Tilly<Tokens>) -> (),
 }
 
@@ -175,6 +176,13 @@ function Tilly.mount(self: Tilly<any>, root: Instance): () -> ()
 		self._styleLinks[styleLink] = nil
 		styleLink:Destroy()
 	end
+end
+
+--[[
+Returns the merged set of internal and theme tokens
+]]
+function Tilly.getTokens<Tokens>(self: Tilly<Tokens>): Tokens
+	return self._tokens
 end
 
 --[[

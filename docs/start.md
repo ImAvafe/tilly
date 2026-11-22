@@ -16,60 +16,73 @@ Tilly is distributed via Wally and GitHub releases.
 2. Download the file ending in `.rbxm`
 3. Drag the file into Roblox Studio
 
-## Integration
-
-To use Tilly effectively, I'd recommend this boilerplate structure to start. The rest of the guides assume this structure.
-
-For Roblox Studio users: `.luau` files are child `ModuleScript`s. `style` is also a `ModuleScript`. The `init.luau` file's code should be placed within `styling`.
+## Instantiate Tilly
 
 ::: code-group
 
-```[File structure]
-- style
-	- styleSheet.luau
-	- tokens.luau
-	- tag.luau
-	- init.luau
-```
-
-:::
-
-::: code-group
-
-```luau [styleSheet.luau]
-return Instance.new("StyleSheet")
-```
-
-```luau [tokens.luau]
-const defaultTokens = require("@src/vendor/tilly/tokens")
-const mergeTokensets = require("@src/vendor/tilly/util/mergeTokensets")
+```luau [myTilly.luau]
+const Tilly = require("@packages/tilly")
 
 const THEME = {
 	["color-primary"] = Color3.fromHex("79B8FF"),
 	-- add more tokens as you go
 }
 
-return mergeTokensets({ defaultTokens, THEME })
+return Tilly.new(THEME)
 ```
 
-```luau [tag.luau]
+:::
+
+## Add tag function
+
+To make tagging instances more ergonomic, we're going to create a `tag.luau` module that returns a convenient `tag()` function.
+
+If you're using a library like Fusion or Vide, this is especially helpful and allows for tags to be applied reactively.
+
+::: code-group
+
+```luau [No framework]
+const myTilly = require("@src/myTilly")
+
+return myTilly.addTags
+```
+
+```luau [Vide]
 const Tilly = require("@packages/tilly")
-const styleSheet = require("@src/style/styleSheet")
-const tokens = require("@src/style/tokens")
+const vide = require("@packages/vide")
+const myTilly = require("@src/myTilly")
 
-return Tilly.new(styleSheet, tokens) -- has :addTags() and :destroy()
+vide.defaults = false -- disables default properties that interfere with our styling
+
+const function tag<Tags>(tags: Tilly.TagsInput<typeof(myTilly:getTokens()), Tags>)
+	return vide.action(function(instance)
+		if type(tags) == "string" then
+			myTilly:addTags(instance, tags)
+			return
+		end
+
+		if type(tags) == "function" then
+			local removeTags: (() -> ())? = nil
+			vide.effect(function()
+				if removeTags ~= nil then
+					removeTags()
+					removeTags = nil
+				end
+				removeTags = myTilly:addTags(instance, (tags :: any)() :: "")
+			end)
+		end
+	end)
+end
+
+return tag
 ```
 
-```luau [init.luau]
-const styleSheet = require("@src/style/styleSheet")
-const tokens = require("@src/style/tokens")
-const tag = require("@src/style/tag")
+```luau [Fusion]
+-- anyone wanna suggest a snippet for this?
+```
 
-return {
-	styleSheet = styleSheet,
-	tokens = tokens,
-	tag = tag,
-}
+```luau [React]
+-- anyone wanna suggest a snippet for this?
 ```
 
 :::

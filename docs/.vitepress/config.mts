@@ -15,13 +15,14 @@ export default defineConfig({
 				items: [
 					{ text: "How it works", link: "/explainer" },
 					{ text: "Get started", link: "/start" },
-					{ text: "For your framework", link: "/setups" },
 				],
 			},
 			{
-				text: "Usage",
+				text: "Learn",
 				items: [
-					{ text: "Placeholder", link: "/explainer" },
+					{ text: "Mounting your UI", link: "/mounting" },
+					{ text: "Utility tags", link: "/utility-tags" },
+					{ text: "Tokens", link: "/tokens" },
 				],
 			},
 		],
