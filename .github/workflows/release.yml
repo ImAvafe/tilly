@@ -25,7 +25,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rokit Toolchains
-        run: rokit install
+        run: rokit install --no-trust-check
 
       - name: Install Dependencies
         run: wally install
@@ -84,7 +84,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rokit Toolchains
-        run: rokit install
+        run: rokit install --no-trust-check
 
       - name: Install Dependencies
         run: wally install
