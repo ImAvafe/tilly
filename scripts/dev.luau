@@ -10,7 +10,7 @@ end
 task.spawn(function()
 	process.exec(
 		"rojo",
-		{ "sourcemap", "default.project.json", "--output", "sourcemap.json", "--watch" },
+		{ "sourcemap", "dev.project.json", "--output", "sourcemap.json", "--watch" },
 		{ env = process.env, stdio = "forward" }
 	)
 end)
@@ -18,7 +18,7 @@ end)
 task.wait(1)
 
 task.spawn(function()
-	process.exec("rojo", { "serve", "default.project.json" }, { env = process.env, stdio = "forward" })
+	process.exec("rojo", { "serve", "dev.project.json" }, { env = process.env, stdio = "forward" })
 end)
 
 print("\nPress Ctrl+C to close all tooling.\n")

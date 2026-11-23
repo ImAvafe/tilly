@@ -1,21 +1,12 @@
 {
-	"name": "Sculpt",
+	"name": "Tilly",
 	"tree": {
 		"$className": "DataModel",
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
-			"Sculpt": {
-				"$path": "lib"
+			"Tilly": {
+				"$path": "src"
 			}
 		},
-		"StarterPlayer": {
-			"$className": "StarterPlayer",
-			"StarterPlayerScripts": {
-				"$className": "StarterPlayerScripts",
-				"Examples": {
-					"$path": "examples"
-				}
-			}
-		}
 	}
 }
